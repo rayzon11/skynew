@@ -1,25 +1,125 @@
 import fs from 'node:fs/promises';
+import {readFileSync} from 'node:fs';
 import {products} from './catalogue.mjs';
-const root=new URL('./dist/',import.meta.url),arrow='<span aria-hidden="true">↗</span>',contact='https://awl247wa.com/casino/sky247';
-const logo=p=>`<img src="/assets/${p.logo}" alt="${p.name}" width="260" height="180" decoding="async">`;
-function stage(extra=''){return `<span class="chamber ${extra}"><span class="chamber-backdrop"></span><span class="scene-host" aria-hidden="true"></span><span class="hero-logo" aria-hidden="true">${logo(products[0])}</span><span class="holo holo-top">SKY247 <b> / SIGNATURE 01</b></span><span class="holo holo-bottom">SPORTS · ENTERTAINMENT · EXPERIENCE</span></span>`;}
-function productSpecs(){return `<dl class="product-specs"><div><dt>Minimum ID</dt><dd>Rs 300</dd></div><div><dt>1 point</dt><dd>Rs 1</dd></div><div><dt>Minimum bet</dt><dd>Rs 100</dd></div><div><dt>Fancy minimum</dt><dd>Rs 100</dd></div></dl>`;}
-function card(p,i){const bonus=Boolean(p.benefits?.length);return `<article class="product-card ${bonus?'bonus-product':''}" data-product="${p.id}"><button class="product-open" data-open="${p.id}" aria-label="Explore ${p.name}"><span class="card-meta"><span>${p.number} / COLLECTION</span>${bonus?'<span class="bonus-badge">BONUS SITE</span>':arrow}</span><span class="logo-stage"><span class="glass-plate">${logo(p)}</span><span class="logo-reflection" aria-hidden="true">${logo(p)}</span></span><span class="card-caption"><span><strong>${p.name}</strong><small>${p.category}</small></span><span class="card-plus" aria-hidden="true">+</span></span></button><a class="destination" href="${p.url}" target="_blank" rel="noopener noreferrer">${new URL(p.url).hostname}${arrow}</a>${productSpecs()}<div class="card-offer ${bonus?'has-bonus':'standard-access'}">${bonus?`<p class="offer-label">BONUS &amp; REWARDS</p><ul class="card-benefits">${p.benefits.map(b=>`<li>${b}</li>`).join('')}</ul>`:'<p class="offer-label">PRODUCT ACCESS</p><p class="access-note">Get your ID or visit the platform to explore.</p>'}</div><div class="card-cta"><a class="button ${bonus?'bonus-claim':''}" href="${contact}" target="_blank" rel="noopener noreferrer" aria-label="${bonus?'Ask support to claim a bonus for':'Get an ID for'} ${p.name}">${bonus?'Claim bonus':'Get ID Now'} ${arrow}</a><p>${bonus?'Contact support to claim. Eligibility and terms apply.':'Contact support to get started.'}</p></div></article>`;}
-const sports=[['Cricket','Every delivery. Every possibility.','cricket'],['Football','The world’s game. A wider perspective.','football'],['Tennis','Precision in every moment.','tennis'],['Basketball','The energy of the arena.','basketball']];
-const privilegeArtwork=['auto-bonus','weekly-loss-back','refer-earn','deposit-commission'];
-const privilegeAlt=['Blue glass gift box with a chrome ribbon on dark marble','Polished return ring surrounding blue and silver chips','Three linked glass and metal membership medallions','Dark chrome vault with blue and silver chips'];
-const title='SKY247 — The luxury digital collection',description='Discover the SKY247 collection: six original platforms in a cinematic casino and sports showroom.';
-const schema={'@context':'https://schema.org','@type':'ItemList',name:'SKY247 Collection',itemListElement:products.map((p,i)=>({'@type':'ListItem',position:i+1,name:p.name,url:p.url}))};
-await fs.writeFile(new URL('index.html',root),`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f5f0"><title>${title}</title><meta name="description" content="${description}"><link rel="canonical" href="https://sky247demo.com/"><meta property="og:type" content="website"><meta property="og:title" content="${title}"><meta property="og:description" content="${description}"><meta property="og:url" content="https://sky247demo.com/"><meta property="og:image" content="https://sky247demo.com/og.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://sky247demo.com/og.png"><link rel="icon" href="/assets/sky247.png" type="image/png"><link rel="preload" href="/assets/fonts/manrope-latin-400-800.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/theme-warm.css"><script type="module" src="/app.js"></script><script type="application/ld+json">${JSON.stringify(schema)}</script></head><body><a class="skip" href="#products">Skip to products</a><div class="atmosphere" aria-hidden="true"><div class="nebula"></div><div class="light-shaft"></div><div class="dust"></div></div><div class="cursor-halo" aria-hidden="true"></div><div class="scroll-progress" aria-hidden="true"></div>
-<header class="header"><div class="header-inner wrap"><a class="brand" href="#products" aria-label="SKY247 home">${logo(products[0])}<span>THE PRIVATE<br>COLLECTION</span></a><nav id="navigation" aria-label="Main navigation"><a href="#products">Collection <span>06</span></a><a href="#lounge">The lounge</a><a href="#sports">Sports</a><a href="#referral">Privileges</a><a href="#showcase">SKY247</a></nav><div class="header-controls"><button class="motion-toggle" aria-pressed="false" aria-label="Pause motion"><span aria-hidden="true">Ⅱ</span><span class="motion-label">Motion on</span></button><a class="button compact" href="${contact}" target="_blank" rel="noopener noreferrer">Get ID ${arrow}</a><button class="menu-toggle" aria-expanded="false" aria-controls="navigation">Menu</button></div></div></header>
-<main id="main"><section class="collection wrap" id="products"><div class="catalogue-heading"><div><p class="eyebrow">SIX IDENTITIES. ONE EXTRAORDINARY WORLD.</p><h1>SKY247 <em>COLLECTION</em></h1></div><p>Select your platform.<br> Enter its private showroom.</p></div><div class="product-grid">${products.map(card).join('')}</div><div class="section-baseline"><span>THE DIGITAL COLLECTION / 01 — 06</span><span>ORIGINAL IDENTITIES · DIRECT ACCESS</span></div></section>
-<section class="lounge section" id="lounge"><div class="wrap lounge-frame reveal" data-parallax><div class="lounge-image"></div><div class="lounge-shade"></div><div class="lounge-copy"><p class="eyebrow">01 / THE PRIVATE LOUNGE</p><h2>A world<br><em>apart.</em></h2><p>The atmosphere of the lounge.<br>The energy of the arena.</p><a href="#sports" class="text-link">Discover the arenas <span aria-hidden="true">↓</span></a></div><span class="lounge-caption">CASINO × SPORTS × SKY247</span></div></section>
-<section class="sports section" id="sports"><div class="wrap section-heading reveal"><div><p class="eyebrow">02 / BEYOND THE LOUNGE</p><h2>The best seat.<br><em>Every arena.</em></h2></div><p>Four sports. Four perspectives.<br>A closer connection to the game.</p></div><div class="sports-grid wrap">${sports.map(([name,line,img],i)=>`<article class="sport-panel reveal" data-parallax><div class="sport-image"><picture><source srcset="/assets/${img}-800.webp 800w, /assets/${img}-1600.webp 1600w" sizes="(max-width:700px) 100vw, 50vw"><img src="/assets/${img}-1600.webp" alt="${name} arena with dramatic architectural lighting" width="1600" height="900" loading="lazy" decoding="async"></picture></div><div class="sport-overlay"></div><span class="sport-index">0${i+1} / PRIVATE VIEW</span><div class="sport-copy"><h3>${name}</h3><p>${line}</p></div><span class="sport-line" aria-hidden="true"></span></article>`).join('')}</div></section>
-<section class="referral wrap section" id="referral"><div class="section-heading reveal"><div><p class="eyebrow">03 / PRIVILEGES</p><h2>More to<br><em>your experience.</em></h2></div><p>Bonus programmes for SKYEXCH247,<br>REDDY247 and TIGEREXCHANGE247 only.</p></div><div class="privilege-grid">${[['Auto Bonus','Automatic bonus offers for eligible accounts.'],['Weekly Loss Back','Explore the weekly loss-back programme.'],['Refer & Earn','Discover rewards for eligible referrals.'],['Deposit Commission','Explore deposit commission offers.']].map(([name,copy],i)=>`<article class="privilege reveal"><span class="privilege-number">0${i+1}</span><div class="privilege-art"><picture><source srcset="/assets/${privilegeArtwork[i]}-480.webp 480w, /assets/${privilegeArtwork[i]}-960.webp 960w" sizes="(max-width:580px) 50vw, (max-width:1150px) 50vw, 25vw"><img src="/assets/${privilegeArtwork[i]}-960.webp" alt="${privilegeAlt[i]}" width="960" height="640" loading="lazy" decoding="async"></picture></div><h3>${name}</h3><p>${copy}</p></article>`).join('')}</div><p class="terms">Availability, eligibility and terms vary by platform and account. Check the destination for current details.</p></section>
-<section class="casino-hero section" id="showcase"><div class="casino-hero-frame wrap reveal"><picture class="casino-hero-image"><source srcset="/assets/casino-warm-lounge-800.webp 800w, /assets/casino-warm-lounge-1600.webp 1600w" sizes="100vw"><img src="/assets/casino-warm-lounge-1600.webp" alt="Sunlit ivory casino lounge with champagne metal, a cream gaming table and glass chandeliers" width="1600" height="900" loading="lazy" decoding="async"></picture><div class="casino-hero-shade"></div><div class="casino-hero-copy"><p class="eyebrow">THE SKY247 EXPERIENCE</p><h2>A seat in<br><em>another world.</em></h2><p>Casino atmosphere.<br>Sporting energy. Your next experience.</p><button class="button magnetic" data-open="skyexch247">Explore SKY247 ${arrow}</button></div><span class="casino-hero-caption">THE PRIVATE LOUNGE / SKY247</span></div></section>
-<section class="finale section" id="contact"><div class="wrap finale-inner reveal"><div><p class="eyebrow">YOUR NEXT EXPERIENCE</p><h2>Make your<br><em>next move.</em></h2></div><div><a class="button magnetic" href="${contact}" target="_blank" rel="noopener noreferrer">Get ID Now ${arrow}</a><a class="text-link" href="${contact}" target="_blank" rel="noopener noreferrer">Contact us on WhatsApp ${arrow}</a></div></div></section></main>
-<footer class="footer wrap"><a class="brand" href="#products" aria-label="SKY247 home">${logo(products[0])}<span>CASINO × SPORTS × SKY247</span></a><a href="#products">Back to collection ↑</a><div class="footer-bottom"><span>© ${new Date().getFullYear()} SKY247DEMO.COM</span><span>Six identities. One collection.</span><span>Original showcase environments.</span></div></footer>
-<dialog id="product-dialog" aria-labelledby="detail-name"><button class="dialog-close" aria-label="Close showroom">Close <span aria-hidden="true">×</span></button><div class="detail-visual"><span class="detail-index eyebrow"></span><img class="detail-logo" src="/assets/sky247.png" alt="" width="340" height="270"><span class="holo">THE PRIVATE COLLECTION</span></div><div class="detail-copy"><p class="eyebrow">YOUR SELECTED EXPERIENCE</p><h2 id="detail-name"></h2><p class="detail-category"></p><dl class="detail-specs"><div><dt>Minimum ID</dt><dd>Rs 300</dd></div><div><dt>1 point</dt><dd>Rs 1</dd></div><div><dt>Minimum bet</dt><dd>Rs 100</dd></div><div><dt>Fancy minimum</dt><dd>Rs 100</dd></div></dl><div class="detail-benefits"></div><a class="button detail-bonus-claim" href="https://awl247wa.com/casino/sky247" target="_blank" rel="noopener noreferrer" hidden>Claim bonus ↗</a><p class="detail-bonus-terms" hidden>Contact support to claim. Eligibility and terms apply.</p><a class="button detail-link magnetic" target="_blank" rel="noopener noreferrer">Visit website ${arrow}</a><span class="detail-domain"></span><p class="detail-note">Opens the platform in a new tab.</p></div></dialog></body></html>`);
-await fs.writeFile(new URL('catalogue.json',root),JSON.stringify(products));
-console.log('Built catalogue-first SKY247 luxury casino showroom: six approved products.');
 
+const root = new URL('./dist/', import.meta.url);
+const contact = 'https://awl247wa.com/casino/sky247';
+const arrow = '<span aria-hidden="true">↗</span>';
+const ext = 'target="_blank" rel="noopener noreferrer"';
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const host = url => new URL(url).hostname;
+const taglines = {skyexch247: 'The SKY247 signature exchange.'};
+const tagline = p => p.tagline || taglines[p.id] || '';
+const isBonus = p => Boolean(p.benefits?.length);
+
+// Read each logo's intrinsic size from its PNG header so width/height match the original aspect ratio.
+function pngSize(file) {
+  const b = readFileSync(new URL(`assets/${file}`, root));
+  return [b.readUInt32BE(16), b.readUInt32BE(20)];
+}
+const logoImg = (p, attrs = '') => {
+  const [w, h] = pngSize(p.logo);
+  return `<img src="/assets/${p.logo}" width="${w}" height="${h}" ${attrs} decoding="async">`;
+};
+
+const specs = cls => `<dl class="specs${cls ? ` ${cls}` : ''}"><div><dt>Min ID</dt><dd>Rs 300</dd></div><div><dt>1 point</dt><dd>Rs 1</dd></div><div><dt>Min bet</dt><dd>Rs 100</dd></div><div><dt>Fancy min</dt><dd>Rs 100</dd></div></dl>`;
+const cube = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12"/><path d="M21 7l-9 5-9-5"/></svg>';
+const chevron = dir => `<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${dir === 'left' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6'}"/></svg>`;
+const die = '<span class="die"><i class="f1"></i><i class="f6"></i><i class="f2"></i><i class="f5"></i><i class="f3"></i><i class="f4"></i></span>';
+const chipPairs = [['cy', 'ck'], ['cw', 'cg'], ['cg', 'cy'], ['ck', 'cw'], ['cy', 'cg'], ['cw', 'ck']];
+const floats = ['float', 'float2', 'float3'];
+
+function card(p, i) {
+  const bonus = isBonus(p);
+  const [left, right] = chipPairs[i % chipPairs.length];
+  return `<article class="product-card ${bonus ? 'bonus-product' : 'standard-product'}" data-product="${p.id}">
+<div class="card-top"><span class="card-num"><b>${p.number}</b>/ 0${products.length}</span>${bonus ? '<span class="badge badge-bonus">BONUS SITE</span>' : '<span class="badge">DIRECT ACCESS</span>'}</div>
+<div class="stage" aria-hidden="true"><span class="minifloor"></span><span class="mt"><span class="mt-a"></span><span class="mt-b"></span><span class="mt-c"><span class="felt mt-felt"></span></span></span><span class="chip ${left} low c-left"></span><span class="chip ${right} low c-right"></span><span class="lift"><span class="${floats[i % 3]} slab"><span class="se e1"></span><span class="se e2"></span><span class="se e3"></span><span class="sf">${logoImg(p, 'alt="" loading="lazy"')}<span class="sheen"></span></span></span></span></div>
+<h2 class="card-name">${esc(p.name)}</h2>
+<div class="card-sub"><span>${esc(p.category)}</span><a class="destination" href="${p.url}" ${ext} aria-label="Visit ${esc(p.name)} website, ${host(p.url)} (opens a new tab)">${host(p.url)} ${arrow}</a></div>
+${specs()}
+<div class="offer">${bonus
+    ? `<p class="offer-label">BONUS &amp; REWARDS</p><ul class="benefits">${p.benefits.map(b => `<li>${esc(b)}</li>`).join('')}</ul>`
+    : '<p class="offer-label muted">PRODUCT ACCESS</p><p class="access-note">Get your ID or visit the platform to explore.</p>'}</div>
+<div class="card-cta"><a class="btn btn-gold${bonus ? ' bonus-claim' : ' get-id'}" href="${contact}" ${ext} aria-label="${bonus ? `Ask support to claim a bonus for ${esc(p.name)}` : `Get an ID for ${esc(p.name)}`} (opens WhatsApp support in a new tab)">${bonus ? 'Claim bonus' : 'Get ID Now'} ${arrow}</a><button class="btn btn-ghost" type="button" data-open="${p.id}" aria-haspopup="dialog">${cube}3D Showroom</button></div>
+<p class="card-note">${bonus ? 'Contact support to claim. Eligibility and terms apply.' : 'Contact support to get started.'}</p>
+</article>`;
+}
+
+const stakes = [['cy', '300', 'Rs 300', 'Minimum ID'], ['cw', '1', 'Rs 1', 'Per point'], ['cg', '100', 'Rs 100', 'Minimum bet'], ['ck', '100', 'Rs 100', 'Fancy minimum']];
+const privileges = [
+  ['auto-bonus', 'Auto Bonus', 'Automatic bonus offers for eligible accounts.', 'Blue glass gift box with a chrome ribbon on dark marble'],
+  ['weekly-loss-back', 'Weekly Loss Back', 'Explore the weekly loss-back programme.', 'Polished return ring surrounding blue and silver chips'],
+  ['refer-earn', 'Refer &amp; Earn', 'Discover rewards for eligible referrals.', 'Three linked glass and metal membership medallions'],
+  ['deposit-commission', 'Deposit Commission', 'Explore deposit commission offers.', 'Dark chrome vault with blue and silver chips'],
+];
+const benefitIcons = {
+  'Auto Bonus': '<path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 21V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/>',
+  'Weekly Loss Back': '<path d="M3 12a9 9 0 0115-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-15 6.7L3 16"/><path d="M3 21v-5h5"/>',
+  'Refer & Earn': '<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0114 0"/><path d="M19 8v6M22 11h-6"/>',
+  'Deposit Commission': '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="12" cy="12" r="4"/><path d="M12 8v1M12 15v1M8 12h1M15 12h1"/>',
+};
+const bonusBenefits = products.find(isBonus).benefits;
+const arenas = [['Cricket', 'Every delivery. Every possibility.', 'cricket'], ['Football', 'The world’s game. A wider perspective.', 'football'], ['Tennis', 'Precision in every moment.', 'tennis'], ['Basketball', 'The energy of the arena.', 'basketball']];
+
+const title = 'SKY247 — Sports exchange & casino platforms';
+const description = 'Explore six original platforms in the SKY247 3D casino showroom: SKYEXCH247, 1XBETFAIR, LASER247, REDDY247, TIGEREXCHANGE247 and RADHEEXCH.';
+const schema = {'@context': 'https://schema.org', '@type': 'ItemList', name: 'SKY247 platforms', itemListElement: products.map((p, i) => ({'@type': 'ListItem', position: i + 1, name: p.name, url: p.url}))};
+const data = products.map(p => ({id: p.id, name: p.name, number: p.number, category: p.category, tagline: tagline(p), url: p.url, logo: p.logo, benefits: p.benefits || []}));
+const json = v => JSON.stringify(v).replace(/</g, '\\u003c');
+
+const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#06070A"><title>${esc(title)}</title><meta name="description" content="${esc(description)}"><link rel="canonical" href="https://sky247demo.com/"><meta property="og:type" content="website"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="https://sky247demo.com/"><meta property="og:image" content="https://sky247demo.com/og.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://sky247demo.com/og.png"><link rel="icon" href="/assets/skyexch247.png" type="image/png"><link rel="preload" href="/assets/fonts/unbounded-latin-200-900.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/fonts/manrope-latin-400-800.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/casino.css"><script type="module" src="/app.js"></script><script type="application/ld+json">${json(schema)}</script></head><body>
+<a class="skip" href="#products">Skip to products</a>
+<div class="backdrop" aria-hidden="true"><span class="floor"></span></div>
+<header class="site-header"><div class="wrap header-inner">
+<a class="brand" href="#products" aria-label="SKY247 home">${logoImg(products[0], 'alt=""')}<span class="wordmark">SKY<b>247</b></span></a>
+<nav id="navigation" aria-label="Main navigation"><a href="#products">Platforms <span>06</span></a><a href="#stakes">Stakes</a><a href="#bonus">Bonuses</a><a href="#arenas">Arenas</a><a href="#lounge">Lounge</a></nav>
+<div class="header-actions"><button class="motion-toggle" type="button" aria-pressed="false" aria-label="Pause motion"><span class="motion-icon" aria-hidden="true">Ⅱ</span><span class="motion-label">Motion on</span></button><a class="btn btn-gold btn-sm" href="${contact}" ${ext} aria-label="Get ID (opens WhatsApp support in a new tab)">Get ID ${arrow}</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" aria-label="Open menu"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div>
+</div></header>
+<main id="main"><section class="collection wrap" id="products">
+<div class="collection-head"><div class="head-left"><h1 class="brand-3d">SKY<span>247</span></h1><span class="head-rule" aria-hidden="true"></span><p class="eyebrow">♠ Six platforms · One table</p></div><div class="head-right"><p>Open any card for its 3D showroom.</p><p class="legend"><span class="badge badge-bonus">BONUS SITE</span> Bonus programmes</p></div></div>
+<div class="product-grid">${products.map(card).join('\n')}</div>
+<div class="baseline"><span>SKY247 / PLATFORMS 01 — 0${products.length}</span><span>ORIGINAL IDENTITIES · DIRECT ACCESS</span></div>
+</section>
+<section class="stakes section" id="stakes"><div class="wrap">
+<div class="section-head"><div><p class="eyebrow">♦ 01 / Table stakes</p><h2>Same stakes.<br><span class="gold">Every table.</span></h2></div><p class="lede">All six platforms share the same four numbers.</p></div>
+<div class="stakes-table"><span class="felt stakes-felt" aria-hidden="true"></span><div class="stakes-grid">${stakes.map(([c, face, value, label], i) => `<div class="stake"><span class="chip-wrap ${floats[i % 3]}" aria-hidden="true"><span class="chip ${c}"><span>${face}</span></span></span><p><strong>${value}</strong><small>${label}</small></p></div>`).join('')}</div></div>
+</div></section>
+<section class="bonus section" id="bonus"><div class="wrap">
+<div class="section-head"><div><p class="eyebrow">♣ 02 / Bonus programmes</p><h2>Four ways<br><span class="gold">to play more.</span></h2></div><p class="lede">Available on ${products.filter(isBonus).map(p => p.name).join(', ').replace(/, ([^,]*)$/, ' and $1')} only.</p></div>
+<div class="fan-grid">${privileges.map(([img, name, copy, alt], i) => `<article class="fan"><picture><source srcset="/assets/${img}-480.webp 480w, /assets/${img}-960.webp 960w" sizes="(max-width:720px) 50vw, 25vw"><img src="/assets/${img}-960.webp" alt="${alt}" width="960" height="640" loading="lazy" decoding="async"></picture><div class="fan-body"><span>0${i + 1}</span><h3>${name}</h3><p>${copy}</p></div></article>`).join('')}</div>
+<div class="bonus-foot"><div class="available"><span>AVAILABLE ON</span>${products.filter(isBonus).map(p => `<span class="logo-pill">${logoImg(p, `alt="${esc(p.name)}" loading="lazy"`)}</span>`).join('')}</div><div class="claim-row"><p>Contact support to claim. Eligibility and terms apply.</p><a class="btn btn-gold btn-lg bonus-claim" href="${contact}" ${ext} aria-label="Claim bonus (opens WhatsApp support in a new tab)">Claim bonus ${arrow}</a></div></div>
+</div></section>
+<section class="arenas section" id="arenas"><div class="wrap">
+<div class="section-head"><div><p class="eyebrow">♥ 03 / The arenas</p><h2>Spin to<br><span class="gold arena-name" aria-live="polite">Cricket.</span></h2></div><div class="arena-ctrl"><button class="icon-btn arena-prev" type="button" aria-label="Previous arena">${chevron('left')}</button><button class="icon-btn solid arena-next" type="button" aria-label="Next arena">${chevron('right')}</button></div></div>
+</div>
+<div class="ring-stage"><div class="ring">${arenas.map(([name, line, img]) => `<figure><picture><source srcset="/assets/${img}-800.webp 800w, /assets/${img}-1600.webp 1600w" sizes="(max-width:720px) 90vw, 640px"><img src="/assets/${img}-1600.webp" alt="${name} arena with dramatic lighting" width="1600" height="900" loading="lazy" decoding="async"></picture><figcaption><h3>${name}</h3><p>${line}</p></figcaption></figure>`).join('')}</div></div>
+<div class="arena-tabs wrap">${arenas.map(([name], i) => `<button type="button" aria-pressed="${i === 0}">${name}</button>`).join('')}</div>
+</section>
+<section class="lounge section" id="lounge"><div class="wrap"><div class="lounge-card"><picture><source srcset="/assets/casino-lounge-800.webp 800w, /assets/casino-lounge-1600.webp 1600w" sizes="(max-width:720px) 100vw, 1248px"><img src="/assets/casino-lounge-1600.webp" alt="SKY247 casino lounge with gaming tables and chandeliers" width="1600" height="900" loading="lazy" decoding="async"></picture><span class="lounge-shade" aria-hidden="true"></span><div class="lounge-copy"><h2>Make your<br><span class="gold">next move.</span></h2><div class="lounge-actions"><a class="btn btn-gold btn-lg get-id" href="${contact}" ${ext} aria-label="Get ID Now (opens WhatsApp support in a new tab)">Get ID Now ${arrow}</a><a class="text-link whatsapp" href="${contact}" ${ext}>Contact us on WhatsApp ${arrow}</a></div></div></div></div></section>
+</main>
+<footer class="site-footer"><div class="wrap footer-inner"><a class="brand" href="#products" aria-label="SKY247, back to top">${logoImg(products[0], 'alt="" loading="lazy"')}<span class="wordmark">SKY<b>247</b></span></a><a href="#products">Back to platforms ↑</a><span>Six identities. Terms vary by platform and account.</span><span>© ${new Date().getFullYear()} SKY247DEMO.COM</span></div></footer>
+<dialog id="product-dialog" class="showroom" aria-labelledby="sr-name">
+<div class="sr-top"><p class="eyebrow">♠ 3D Showroom <span class="sr-count"><b class="sr-num">01</b> <span>/ 0${products.length}</span></span></p><div class="sr-actions"><button class="icon-btn sr-prev" type="button" aria-label="Previous product">${chevron('left')}</button><button class="icon-btn sr-next" type="button" aria-label="Next product">${chevron('right')}</button><button class="sr-close" type="button" aria-label="Close showroom"><span class="sr-close-label">Close</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></div>
+<div class="sr-body">
+<div class="sr-stage" aria-hidden="true"><span class="floor"></span><div class="sr-persp"><div class="sr-scene">
+<span class="sr-table"><span class="t1"></span><span class="t2"></span><span class="t3"></span><span class="t4"><span class="felt"><span class="t-ring"></span></span></span></span>
+<span class="sr-slab"><span class="float sr-slab-inner"><span class="sse s1"></span><span class="sse s2"></span><span class="sse s3"></span><span class="sse s4"></span><span class="ssf"><img class="sr-logo" src="/assets/${products[0].logo}" alt="" width="320" height="160"><span class="sheen"></span></span></span></span>
+<span class="pcard pcard-a"><span class="float2 pface">A<br>♠<b>♠</b></span></span><span class="pcard pcard-b"><span class="float3 pface red">K<br>♥<b>♥</b></span></span>
+<span class="sr-die die-a"><span class="float2 die-float">${die}</span></span><span class="sr-die die-b"><span class="float3 die-float">${die.replace('class="die"', 'class="die slow"')}</span></span>
+<span class="sr-chip chip-a"><span class="chip cy"></span></span><span class="sr-chip chip-b"><span class="chip ck low"></span></span><span class="sr-chip chip-c"><span class="chip cw"></span></span>
+</div></div><p class="sr-hint">Move your cursor to tilt the table ↻</p></div>
+<div class="sr-info"><div class="sr-titles"><p class="eyebrow sr-cat"></p><h2 id="sr-name"></h2><p class="sr-tag"></p></div>${specs('specs-lg')}
+<div class="sr-bonus" hidden><p class="offer-label">BONUS &amp; REWARDS</p><ul class="sr-benefits">${bonusBenefits.map(b => `<li><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${benefitIcons[b] || ''}</svg>${esc(b)}</li>`).join('')}</ul></div>
+<div class="sr-access" hidden><p class="offer-label muted">PRODUCT ACCESS</p><p class="sr-access-note">Get your ID or visit the platform to explore. Bonus programmes are offered on ${products.filter(isBonus).map(p => p.name).join(', ').replace(/, ([^,]*)$/, ' and $1')}.</p></div>
+<div class="sr-cta"><a class="btn btn-gold sr-primary" href="${contact}" ${ext}><span class="sr-primary-label">Claim bonus</span> ${arrow}</a><a class="btn btn-ghost sr-visit" href="${products[0].url}" ${ext}>Visit website ${arrow}</a></div>
+<p class="sr-note"></p></div>
+</div>
+<div class="sr-rail" role="group" aria-label="Choose a platform">${products.map(p => `<button type="button" aria-current="false" aria-label="Show ${esc(p.name)}">${logoImg(p, 'alt="" loading="lazy"')}<span>${p.number} · ${esc(p.name)}</span></button>`).join('')}</div>
+</dialog>
+<script type="application/json" id="catalogue-data">${json(data)}</script>
+</body></html>`;
+
+await fs.writeFile(new URL('index.html', root), html);
+await fs.writeFile(new URL('catalogue.json', root), JSON.stringify(products));
+console.log('Built SKY247 3D casino site: six approved platforms, showroom dialog, stakes, bonuses, arenas and lounge.');

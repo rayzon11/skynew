@@ -1,17 +1,167 @@
-const reduce=matchMedia('(prefers-reduced-motion: reduce)'),fine=matchMedia('(pointer:fine)'),motion=document.querySelector('.motion-toggle'),nav=document.querySelector('#navigation'),menu=document.querySelector('.menu-toggle'),dialog=document.querySelector('#product-dialog');
-let userPaused=false,sceneStarted=false,sceneModule;
-const paused=()=>reduce.matches||userPaused;
-function syncMotion(){document.body.classList.toggle('motion-paused',paused());document.documentElement.style.scrollBehavior=paused()?'auto':'';motion.setAttribute('aria-pressed',String(paused()));motion.setAttribute('aria-label',reduce.matches?'Reduced motion enabled':userPaused?'Resume motion':'Pause motion');motion.querySelector('.motion-label').textContent=paused()?'Motion off':'Motion on';motion.firstElementChild.textContent=paused()?'▷':'Ⅱ';document.querySelectorAll('.product-card,.magnetic').forEach(el=>{el.style.removeProperty('transform');el.style.removeProperty('--rx');el.style.removeProperty('--ry');});dispatchEvent(new Event('motionchange'));if(!paused())startScene();}
-motion.addEventListener('click',()=>{if(reduce.matches)return;userPaused=!userPaused;syncMotion();});reduce.addEventListener('change',syncMotion);syncMotion();
-function closeMenu(){nav.classList.remove('open');menu.setAttribute('aria-expanded','false');menu.textContent='Menu';}
-menu.addEventListener('click',()=>{const open=nav.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));menu.textContent=open?'Close':'Menu';});nav.addEventListener('click',closeMenu);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&nav.classList.contains('open')){closeMenu();menu.focus();}});
-document.querySelectorAll('.product-card').forEach(card=>{card.addEventListener('pointermove',e=>{if(paused()||e.pointerType!=='mouse')return;const b=card.getBoundingClientRect(),x=(e.clientX-b.left)/b.width,y=(e.clientY-b.top)/b.height;card.style.setProperty('--rx',`${(.5-y)*4}deg`);card.style.setProperty('--ry',`${(x-.5)*5}deg`);card.style.setProperty('--mx',`${x*100}%`);card.style.setProperty('--my',`${y*100}%`);},{passive:true});card.addEventListener('pointerleave',()=>{card.style.setProperty('--rx','0deg');card.style.setProperty('--ry','0deg');});});
-document.querySelectorAll('.magnetic').forEach(el=>{el.addEventListener('pointermove',e=>{if(paused()||e.pointerType!=='mouse')return;const b=el.getBoundingClientRect();el.style.transform=`translate(${(e.clientX-b.left-b.width/2)*.04}px,${(e.clientY-b.top-b.height/2)*.07-2}px) scale(1.02)`;},{passive:true});el.addEventListener('pointerleave',()=>el.style.removeProperty('transform'));el.addEventListener('pointerdown',()=>{if(!paused())el.style.transform='translateY(1px) scale(.98)'});el.addEventListener('pointerup',()=>el.style.removeProperty('transform'));});
-const halo=document.querySelector('.cursor-halo');let haloRAF=0,point=[0,0];document.addEventListener('pointermove',e=>{if(paused()||!fine.matches||e.pointerType!=='mouse')return;point=[e.clientX,e.clientY];halo.classList.add('active');if(!haloRAF)haloRAF=requestAnimationFrame(()=>{haloRAF=0;halo.style.transform=`translate(${point[0]}px,${point[1]}px)`;});},{passive:true});document.addEventListener('pointerout',e=>{if(!e.relatedTarget)halo.classList.remove('active')});
-const reveal=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');reveal.unobserve(e.target);}}),{threshold:.08});document.body.classList.add('js-reveal');document.querySelectorAll('.reveal').forEach(el=>reveal.observe(el));
-const panels=new Set(),panelObserver=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?panels.add(e.target):panels.delete(e.target)),{rootMargin:'60px'});document.querySelectorAll('[data-parallax]').forEach(el=>panelObserver.observe(el));let scrollRAF=0;function updateScroll(){scrollRAF=0;document.querySelector('.scroll-progress').style.width=`${scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight)*100}%`;if(!paused())panels.forEach(el=>{const b=el.getBoundingClientRect(),p=(b.top+b.height/2-innerHeight/2)/(innerHeight+b.height);el.style.setProperty('--py',`${Math.max(-1,Math.min(1,p))*(innerWidth<700?10:24)}px`);});}addEventListener('scroll',()=>{if(!scrollRAF)scrollRAF=requestAnimationFrame(updateScroll)},{passive:true});addEventListener('resize',updateScroll,{passive:true});
-const navObserver=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)nav.querySelectorAll('a').forEach(a=>{const active=a.hash===`#${e.target.id}`;a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current')})}),{rootMargin:'-15% 0px -65% 0px'});document.querySelectorAll('main>section[id]').forEach(el=>navObserver.observe(el));
-let catalogue=[];const catalogueReady=fetch('/catalogue.json').then(r=>{if(!r.ok)throw Error();return r.json()}).then(data=>catalogue=data).catch(()=>{catalogue=[...document.querySelectorAll('.product-card')].map(el=>({id:el.dataset.product,name:el.querySelector('strong').textContent,number:'',category:el.querySelector('small').textContent,logo:el.querySelector('img').src.split('/').pop(),url:el.querySelector('.destination').href}));});
-let previousFocus;async function openProduct(id,trigger){await catalogueReady;const p=catalogue.find(p=>p.id===id);if(!p)return;previousFocus=trigger;dialog.querySelector('#detail-name').textContent=p.name;dialog.querySelector('.detail-category').textContent=p.category;dialog.querySelector('.detail-index').textContent=`${p.number} / ${p.id==='sky247'?'SIGNATURE':'COLLECTION'}`;const img=dialog.querySelector('.detail-logo');img.src=`/assets/${p.logo}`;img.alt=`${p.name} original logo`;dialog.querySelector('.detail-link').href=p.url;dialog.querySelector('.detail-link').setAttribute('aria-label',`Visit ${p.name} website (opens a new tab)`);dialog.querySelector('.detail-domain').textContent=new URL(p.url).hostname;const benefits=dialog.querySelector('.detail-benefits');benefits.replaceChildren(...(p.benefits||[]).map(text=>{const span=document.createElement('span');span.textContent=text;return span;}));const bonusClaim=dialog.querySelector('.detail-bonus-claim');bonusClaim.hidden=!p.benefits?.length;bonusClaim.setAttribute('aria-label',`Ask support to claim a bonus for ${p.name}`);dialog.querySelector('.detail-bonus-terms').hidden=!p.benefits?.length;const rect=trigger.getBoundingClientRect();dialog.style.transformOrigin=`${Math.max(0,Math.min(100,(rect.left+rect.width/2)/innerWidth*100))}% ${Math.max(0,Math.min(100,(rect.top+rect.height/2)/innerHeight*100))}%`;document.body.classList.add('dialog-open');dialog.showModal();dispatchEvent(new Event('motionchange'));}
-document.querySelectorAll('[data-open]').forEach(button=>button.addEventListener('click',()=>openProduct(button.dataset.open,button)));dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});dialog.addEventListener('close',()=>{document.body.classList.remove('dialog-open');previousFocus?.focus({preventScroll:true});dispatchEvent(new Event('motionchange'));});
-async function startScene(){if(sceneStarted||reduce.matches||navigator.connection?.saveData||!document.querySelector('.scene-host'))return;sceneStarted=true;try{sceneModule=await import('./scene.js');}catch{document.body.classList.add('static-rendering');}}
+// SKY247 3D casino site: motion control, navigation, 3D showroom dialog and the arena ring.
+const $ = (selector, scope = document) => scope.querySelector(selector);
+const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+const products = JSON.parse($('#catalogue-data').textContent);
+let userPaused = false;
+const paused = () => reduce.matches || userPaused;
+
+// Motion toggle (also respects the reduced-motion preference)
+const motion = $('.motion-toggle');
+function syncMotion() {
+  document.body.classList.toggle('motion-paused', paused());
+  motion.setAttribute('aria-pressed', String(paused()));
+  motion.setAttribute('aria-label', reduce.matches ? 'Reduced motion enabled' : userPaused ? 'Resume motion' : 'Pause motion');
+  $('.motion-label', motion).textContent = paused() ? 'Motion off' : 'Motion on';
+  $('.motion-icon', motion).textContent = paused() ? '▷' : 'Ⅱ';
+  if (paused()) resetTilt();
+}
+motion.addEventListener('click', () => {
+  if (reduce.matches) return;
+  userPaused = !userPaused;
+  syncMotion();
+});
+reduce.addEventListener('change', syncMotion);
+
+// Responsive navigation
+const nav = $('#navigation');
+const menu = $('.menu-toggle');
+function setMenu(open) {
+  nav.classList.toggle('open', open);
+  menu.setAttribute('aria-expanded', String(open));
+  menu.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+}
+menu.addEventListener('click', () => setMenu(!nav.classList.contains('open')));
+nav.addEventListener('click', event => {
+  if (event.target.closest('a')) setMenu(false);
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && nav.classList.contains('open')) {
+    setMenu(false);
+    menu.focus();
+  }
+});
+const navLinks = $$('a', nav);
+const sectionObserver = new IntersectionObserver(entries => {
+  for (const entry of entries) {
+    if (!entry.isIntersecting) continue;
+    for (const link of navLinks) {
+      const active = link.hash === `#${entry.target.id}`;
+      link.classList.toggle('active', active);
+      if (active) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    }
+  }
+}, {rootMargin: '-20% 0px -70% 0px'});
+$$('main > section[id]').forEach(section => sectionObserver.observe(section));
+
+// 3D showroom dialog
+const dialog = $('#product-dialog');
+const stage = $('.sr-stage', dialog);
+const scene = $('.sr-scene', dialog);
+const railButtons = $$('.sr-rail button', dialog);
+let current = 0;
+let previousFocus = null;
+
+function render(index) {
+  current = (index + products.length) % products.length;
+  const p = products[current];
+  const bonus = p.benefits.length > 0;
+  const host = new URL(p.url).hostname;
+  $('.sr-num', dialog).textContent = p.number;
+  $('.sr-cat', dialog).textContent = p.category;
+  $('#sr-name', dialog).textContent = p.name;
+  $('.sr-tag', dialog).textContent = p.tagline;
+  const logo = $('.sr-logo', dialog);
+  logo.src = `/assets/${p.logo}`;
+  logo.alt = `${p.name} logo`;
+  $('.sr-bonus', dialog).hidden = !bonus;
+  $('.sr-access', dialog).hidden = bonus;
+  const primary = $('.sr-primary', dialog);
+  $('.sr-primary-label', primary).textContent = bonus ? 'Claim bonus' : 'Get ID Now';
+  primary.classList.toggle('bonus-claim', bonus);
+  primary.setAttribute('aria-label', `${bonus ? `Ask support to claim a bonus for ${p.name}` : `Get an ID for ${p.name}`} (opens WhatsApp support in a new tab)`);
+  const visit = $('.sr-visit', dialog);
+  visit.href = p.url;
+  visit.setAttribute('aria-label', `Visit ${p.name} website, ${host} (opens a new tab)`);
+  $('.sr-note', dialog).textContent = `${bonus ? 'Contact support to claim. Eligibility and terms apply.' : 'Contact support to get started.'} Website opens ${host} in a new tab.`;
+  railButtons.forEach((button, i) => button.setAttribute('aria-current', String(i === current)));
+}
+
+function fitStage() {
+  if (stage.clientWidth) stage.style.setProperty('--s', Math.min(1, stage.clientWidth / 760).toFixed(3));
+}
+new ResizeObserver(fitStage).observe(stage);
+
+function openShowroom(id, trigger) {
+  const index = products.findIndex(p => p.id === id);
+  if (index < 0) return;
+  previousFocus = trigger;
+  setMenu(false);
+  render(index);
+  document.documentElement.classList.add('dialog-open');
+  dialog.showModal();
+  fitStage();
+}
+$$('[data-open]').forEach(button => button.addEventListener('click', () => openShowroom(button.dataset.open, button)));
+$('.sr-close', dialog).addEventListener('click', () => dialog.close());
+$('.sr-prev', dialog).addEventListener('click', () => render(current - 1));
+$('.sr-next', dialog).addEventListener('click', () => render(current + 1));
+railButtons.forEach((button, i) => button.addEventListener('click', () => render(i)));
+dialog.addEventListener('keydown', event => {
+  if (event.key === 'ArrowRight') { event.preventDefault(); render(current + 1); }
+  if (event.key === 'ArrowLeft') { event.preventDefault(); render(current - 1); }
+});
+dialog.addEventListener('click', event => {
+  if (event.target !== dialog) return;
+  const box = dialog.getBoundingClientRect();
+  if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dialog.close();
+});
+dialog.addEventListener('close', () => {
+  document.documentElement.classList.remove('dialog-open');
+  resetTilt();
+  previousFocus?.focus({preventScroll: true});
+});
+
+// Mouse tilt for the showroom table
+function resetTilt() {
+  scene.style.removeProperty('--rx');
+  scene.style.removeProperty('--ry');
+}
+stage.addEventListener('pointermove', event => {
+  if (paused() || event.pointerType !== 'mouse') return;
+  const box = stage.getBoundingClientRect();
+  const x = (event.clientX - box.left) / box.width - 0.5;
+  const y = (event.clientY - box.top) / box.height - 0.5;
+  scene.style.setProperty('--rx', `${(4 - y * 14).toFixed(1)}deg`);
+  scene.style.setProperty('--ry', `${(-10 + x * 26).toFixed(1)}deg`);
+}, {passive: true});
+stage.addEventListener('pointerleave', resetTilt);
+
+// Arena ring
+const ring = $('.ring');
+const arenaName = $('.arena-name');
+const arenaTabs = $$('.arena-tabs button');
+const arenaFigures = $$('.ring figure');
+let turn = 0;
+const activeArena = () => ((turn % 4) + 4) % 4;
+function spin(nextTurn) {
+  turn = nextTurn;
+  const active = activeArena();
+  ring.style.setProperty('--turn', turn);
+  arenaName.textContent = `${arenaTabs[active].textContent}.`;
+  arenaTabs.forEach((tab, i) => tab.setAttribute('aria-pressed', String(i === active)));
+  arenaFigures.forEach((figure, i) => figure.setAttribute('aria-hidden', String(i !== active)));
+}
+$('.arena-prev').addEventListener('click', () => spin(turn - 1));
+$('.arena-next').addEventListener('click', () => spin(turn + 1));
+arenaTabs.forEach((tab, i) => tab.addEventListener('click', () => {
+  let delta = i - activeArena();
+  if (delta > 2) delta -= 4;
+  if (delta < -2) delta += 4;
+  spin(turn + delta);
+}));
+
+spin(0);
+syncMotion();
