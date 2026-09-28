@@ -1,43 +1,28 @@
-# SKY247 Collection
+# SKY247 luxury casino collection
 
-Complete static website with a seven-product catalogue, seven shareable product detail routes, Three.js scenes, galleries, sports storytelling, original brand logos, a floating source-linked WhatsApp contact, and responsive layouts.
+The current presentation uses a neutral off-white and graphite SKY theme, restrained yellow controls and new original casino lounge and display-chamber images. `dist/theme-warm.css` contains the theme. Generated source artwork and the exact built-in image generation prompts are saved under `artwork/`; optimized WebP variants live in `dist/assets/`.
 
-## Run locally
+Catalogue-first static website with six equally sized product cards. The collection contains SKYEXCH247, 1XBETFAIR, LASER247, REDDY247, TIGEREXCHANGE247 and RADHEEXCH, in that order. The duplicate SKY247 entry has been removed; the former fourth product, SKYEXCH247, is first and retains its original supplied logo and destination.
 
-Requires Node.js 20 or later. No dependency installation is needed.
+The collection opens animated accessible product dialogs. Direct destination links remain available on every card. The page continues through an original casino lounge, four sports environments, illustrated programme highlights, a wide cinematic casino-lounge hero and contact links.
 
-```sh
-node build.mjs
-node server.mjs
-```
+All six products display the user-confirmed Rs 300 minimum ID, Rs 1 per point, Rs 100 minimum bet and Rs 100 fancy minimum. Bonus benefits and Claim bonus contact buttons appear only for SKYEXCH247, REDDY247 and TIGEREXCHANGE247. These buttons open the existing support contact route; they do not automatically submit or approve bonus claims.
 
-Open http://127.0.0.1:4277/.
+## Build and preview
 
-## Editing
+Run `node build.mjs`, `node verify.mjs`, then `node server.mjs`. Preview: http://127.0.0.1:4277/.
 
-- `catalogue.mjs`: single source for product names, order, destinations and descriptions.
-- `build.mjs`: reusable catalogue, card, detail, gallery, sports, feature, showcase, navigation and footer renderers; generates HTML and SEO files.
-- `dist/styles.css`: responsive gold and charcoal visual system.
-- `dist/app.js`: accessible navigation, card expansion transitions, galleries and motion controls.
-- `dist/scene.js`: one shared WebGL renderer, viewport-limited scenes, camera response, particles and reduced-motion handling.
-- `dist/assets`: original source logos, optimized original artwork, self-hosted fonts and Three.js.
+- `catalogue.mjs`: product data, original logos, destination URLs and existing benefit lists.
+- `build.mjs`: generates `dist/index.html` and `dist/catalogue.json`.
+- `dist/styles.css`: responsive layouts, glass and metal surfaces, shimmer, modal transitions and reduced-motion styling.
+- `dist/app.js`: modal content, keyboard focus return, navigation, card tilt, magnetic buttons, parallax and motion control.
+- `dist/scene.js`: one shared Three.js renderer, reflected studio environment, glass logo plate, metal rings, blue felt table, chips, abstract playing cards and depth particles. The former 3D chamber is replaced with a casino hero image. The retained renderer module is not loaded when no scene host exists.
+- `dist/assets`: local original logos, optimized original CGI images, fonts and Three.js license files.
+
+Reduced-motion preference avoids loading the 3D renderer. Pause stops its animation loop. Hidden/offscreen rendering stops; mobile and lower-power devices use fewer objects and particles, lower pixel ratio and simpler shadows. WebGL initialization failure or context loss preserves a static chamber and all navigation.
 
 ## Hosting
 
-Publish the contents of `dist` to a static web host. Every product has a real `products/<slug>/index.html`; no application server or SPA fallback is required. The local server is for preview, not production.
+Upload the contents of `dist` into Hostinger `public_html`, including `.htaccess`. No production Node.js runtime is required. Metadata and sitemap target https://sky247demo.com/. The existing Sites project connection returned “project not found”; this local work does not change the public domain.
 
-Canonical metadata, sitemap and social-image URLs are prepared for `https://sky247demo.com`. Domain DNS and custom-domain connection must be configured separately before a public launch on that domain. The Sites preview is owner-private by default.
-
-## Destination provenance
-
-Destinations and logos are imported from https://1xdemo.com/ and checked with successful HTTP GET requests on 2026-09-27. SKY247 and SKYEXCH247 intentionally share https://skyexch247.io/: the source associates the SKY247 logo with that address and the destination identifies itself as SKY 247. A separate address was not invented.
-
-The floating WhatsApp button uses the source-listed routing link https://awl247wa.com/casino/1xbetfair. General support uses https://1xbetfaircustomercare.com/. Links open in new tabs with `noopener noreferrer`.
-
-Artwork is original showcase imagery, not screenshots or claims about product functionality. Product key points describe the showcase presentation. Third-party destinations can change independently.
-
-## Accessibility and performance
-
-Semantic content, skip navigation, visible focus, keyboard-operable native dialog, focus return, route announcements, motion toggle and system reduced-motion support. With unavailable WebGL, imagery and navigation remain usable. One renderer serves only visible 3D scenes; hidden scenes release geometry, mobile uses fewer particles and lower pixel density. Fonts and imagery are self-hosted; responsive WebP images are lazy-loaded except the primary presentation.
-
-Font licenses are in `dist/assets/fonts/`. Three.js license is `dist/assets/THREE-LICENSE.txt`.
+The programme descriptions and rates were carried over from the existing package, not independently reverified. Images are presentation artwork. Third-party destinations and programme terms may change.

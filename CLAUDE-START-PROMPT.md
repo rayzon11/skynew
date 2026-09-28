@@ -1,0 +1,5 @@
+Continue work on this SKY247 website. First read CLAUDE.md and README.md, then inspect catalogue.mjs, build.mjs, dist/styles.css, dist/theme-warm.css and dist/app.js. Run `node package.mjs` and inspect the local preview using `node server.mjs` at http://127.0.0.1:4277/ if the server is not already running.
+
+Understand the current implementation before changing anything. Preserve the six approved products and original links/logos, equal card sizes, catalogue-first opening, Rs 300 minimum ID and other existing rates, and bonus buttons only for SKYEXCH247, REDDY247 and TIGEREXCHANGE247. Preserve the current dark casino collection background and restrained yellow accents unless I request a design change. Do not rebuild the project in a different framework or delete dist; it contains maintained CSS/JS/assets.
+
+After reading and checking the project, briefly summarize your understanding and wait for my next instruction. When I give the next task, implement it, verify desktop/mobile behavior and report the changed files and checks. Do not deploy the public website unless I ask.

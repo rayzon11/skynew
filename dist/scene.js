@@ -1,86 +1,39 @@
 import * as T from './assets/three.module.min.js';
-const reduce=matchMedia('(prefers-reduced-motion: reduce)');
-let scenes=new Map(),observer,raf=0,last=0,visible=true,dirty=true;
-const sharedRenderer=new T.WebGLRenderer({alpha:true,antialias:innerWidth>760,powerPreference:'low-power'});
-sharedRenderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<761?1:1.35));sharedRenderer.setClearColor(0,0);sharedRenderer.outputColorSpace=T.SRGBColorSpace;sharedRenderer.toneMapping=T.ACESFilmicToneMapping;sharedRenderer.toneMappingExposure=1.4;
-sharedRenderer.domElement.className='showroom-canvas';sharedRenderer.domElement.setAttribute('aria-hidden','true');document.body.append(sharedRenderer.domElement);
-const paused=()=>reduce.matches||document.body.classList.contains('motion-paused');
-const small=()=>innerWidth<761;
-const environment=new T.TextureLoader().load('/assets/horizon-800.webp');environment.mapping=T.EquirectangularReflectionMapping;environment.colorSpace=T.SRGBColorSpace;
-function create(el){
-  if(scenes.has(el)||!el.isConnected)return;
-  const renderer=sharedRenderer;
-  const scene=new T.Scene();scene.environment=environment;
-  const camera=new T.PerspectiveCamera(40,1,.1,70);camera.position.set(0,.3,9);
-  const group=new T.Group();scene.add(group);
-  const gold=new T.MeshStandardMaterial({color:0xd9b253,metalness:.93,roughness:.27});
-  const chrome=new T.MeshStandardMaterial({color:0xd3d1c8,metalness:.95,roughness:.2});
-  const glass=new T.MeshPhysicalMaterial({color:0x97876b,metalness:.3,roughness:.16,transparent:true,opacity:.18,side:T.DoubleSide,depthWrite:false});
-  const dark=new T.MeshStandardMaterial({color:0x22231f,metalness:.8,roughness:.4});
-  const glow=new T.MeshBasicMaterial({color:0xebcc75,transparent:true,opacity:.65});
-  const red=new T.MeshStandardMaterial({color:0x822b25,metalness:.45,roughness:.3});
-  const add=(geo,mat,x=0,y=0,z=0)=>{const m=new T.Mesh(geo,mat);m.position.set(x,y,z);group.add(m);return m;};
-  const ring=(r,t,mat=gold)=>add(new T.TorusGeometry(r,t,small()?6:10,small()?52:90),mat);
-  const box=(w,h,d,mat=chrome,x=0,y=0,z=0)=>add(new T.BoxGeometry(w,h,d),mat,x,y,z);
-  const id=Number(el.dataset.scene);
-  if(id===0||id===7){
-    const a=ring(2.25,.055,chrome);a.rotation.set(.2,.5,.4);
-    const b=ring(2.5,.035,gold);b.rotation.set(.55,-.4,0);
-    const c=ring(2.85,.014,glow);c.rotation.set(.3,.7,0);
-    for(let i=0;i<6;i++){let g=box(.55,.8,.02,glass,Math.cos(i)*3,Math.sin(i)*2.15,-.8);g.rotation.set(.3,i*.4,.2);}
-    if(id===0&&el.classList.contains('featured-scene')){group.position.x=small()?0:2.3;group.position.y=small()?-.8:.3;group.scale.setScalar(small()?.62:.78);}
-    if(id===7){group.scale.setScalar(1.05);group.position.y=.45;}
-  } else if(id===1){
-    const r=ring(2.05,.085,chrome);r.rotation.x=.6;
-    box(2.8,.06,.06,gold,0,1.1,-.7);box(.05,1.7,.05,gold,-1.38,.26,-.7);box(.05,1.7,.05,gold,1.38,.26,-.7);
-    for(let i=0;i<3;i++){let g=box(.85,.4,.04,glass,-2.2+i*2.2,-1.45,-.2);g.rotation.y=.25;}
-  } else if(id===2){
-    for(let i=0;i<5;i++){const g=box(4.1-i*.45,.025,.025,i%2?chrome:glow,0,(i-2)*.68,-1+i*.17);g.rotation.z=-.35;}
-    for(let i=0;i<3;i++){let g=box(2.7-i*.35,2.3-i*.35,.025,glass,(i-1)*.7,0,-.5-i*.2);g.rotation.y=.4;}
-  } else if(id===3){
-    for(let i=0;i<5;i++){let g=box(1.0,1.75,.035,glass,(i-2)*1.02,.1,Math.abs(i-2)*.3-1);g.rotation.y=(i-2)*-.2;box(.55,.017,.04,gold,(i-2)*1.02,-.7,Math.abs(i-2)*.3-.94);}
-    const r=ring(2.5,.025,gold);r.rotation.x=1.15;r.position.y=-1.1;
-  } else if(id===4){
-    let r=ring(2.1,.16,red);r.rotation.y=.45;r.rotation.x=.2;
-    r=ring(2.45,.035,chrome);r.rotation.x=.5;r.rotation.y=-.4;
-    for(let i=0;i<4;i++){let g=box(.65,.65,.06,glass,Math.cos(i*1.5)*2.3,Math.sin(i*1.5)*2,0);g.rotation.z=.4;}
-  } else if(id===5){
-    for(let i=0;i<3;i++){const g=box(.15,3.9,.12,i===1?gold:chrome,(i-1)*.8,0,-.5);g.rotation.z=-.43;}
-    let r=ring(2.1,.026,glow);r.rotation.x=.6;
-  } else if(id===6){
-    for(let i=0;i<5;i++){const g=ring(2.15-i*.24,.035,i%2?gold:chrome);g.position.z=-i*.35;g.rotation.y=.35;g.scale.y=1.1;}
-  } else {
-    group.scale.setScalar(.74);camera.position.z=6;
-    const type=id%6;
-    if(type===4){let r=ring(1.4,.13);r.rotation.set(.6,.3,0);let r2=ring(1.65,.022,chrome);r2.rotation.y=.7;}
-    if(type===5){for(let i=0;i<3;i++){const g=box(1.4-i*.18,2-i*.2,.1,i===1?gold:chrome,(i-1)*.55,0,-i*.45);g.rotation.y=.45;}}
-    if(type===0){for(let i=0;i<4;i++){let g=box(2.6-i*.35,.13,.12,i%2?gold:chrome,-.15*i,(i-1.5)*.45,0);g.rotation.z=.35;}}
-    if(type===1){const g=add(new T.IcosahedronGeometry(1.35,0),gold);g.rotation.set(.2,.4,.1);add(new T.IcosahedronGeometry(1.7,0),new T.MeshBasicMaterial({color:0xcfc3a2,wireframe:true,transparent:true,opacity:.4}));}
-    if(type===2){for(let i=0;i<3;i++){let g=ring(1.3,.06,i%2?chrome:gold);g.rotation.set(i*.8,.3+i*.5,0);}}
-    if(type===3){for(let i=0;i<4;i++){let g=box(.48,.5+i*.35,.5,i%2?gold:chrome,(i-1.5)*.64,(i*.35)/2-.5,0);g.rotation.y=.35;}}
-  }
-  scene.add(new T.HemisphereLight(0xffedce,0x191c25,2.3));
-  const key=new T.DirectionalLight(0xffe4a2,5);key.position.set(-4,6,5);scene.add(key);
-  const edge=new T.PointLight(0xd2e8ff,18,30);edge.position.set(5,1,3);scene.add(edge);
-  const pos=new Float32Array((small()?24:65)*3);for(let i=0;i<pos.length;i+=3){pos[i]=(Math.random()-.5)*12;pos[i+1]=(Math.random()-.5)*7;pos[i+2]=(Math.random()-.5)*5;}
-  const geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(pos,3));const dust=new T.Points(geo,new T.PointsMaterial({color:0xe6ce89,size:.024,transparent:true,opacity:.45,depthWrite:false}));scene.add(dust);
-  const item={renderer,scene,camera,group,dust,el,time:0,pointer:[0,0],w:0,h:0};scenes.set(el,item);
-  el.dataset.render='webgl';dirty=true;
-}
-function render(o,t){
-  const {el,renderer,scene,camera,group,dust}=o;const w=el.clientWidth,h=el.clientHeight;if(!w||!h)return;
-  if(w!==o.w||h!==o.h){o.w=w;o.h=h;camera.aspect=w/h;camera.updateProjectionMatrix();}
-  if(el.classList.contains('featured-scene')){group.position.set(small()?0:Math.tan(T.MathUtils.degToRad(camera.fov/2))*camera.position.z*camera.aspect*.46,small()?-.8:.3,0);group.scale.setScalar(small()?.62:.78);}
-  if(!paused()){o.time+=t;group.rotation.y=Math.sin(o.time*.14)*.09+o.pointer[0]*.09;group.rotation.x=Math.sin(o.time*.1)*.045+o.pointer[1]*.035;dust.rotation.y=o.time*.016;camera.position.x+=(o.pointer[0]*.16-camera.position.x)*.035;camera.position.y=.3+(el.getBoundingClientRect().top/innerHeight-.5)*.08;camera.lookAt(0,0,0);}
-  const rect=el.getBoundingClientRect();if(rect.bottom<0||rect.top>innerHeight||rect.right<0||rect.left>innerWidth)return;
-  renderer.setViewport(rect.left,innerHeight-rect.bottom,w,h);renderer.setScissor(Math.max(0,rect.left),Math.max(0,innerHeight-rect.bottom),Math.min(innerWidth,rect.right)-Math.max(0,rect.left),Math.min(innerHeight,rect.bottom)-Math.max(0,rect.top));renderer.render(scene,camera);
-}
-function dispose(el){const o=scenes.get(el);if(!o)return;o.scene.traverse(x=>{x.geometry?.dispose();if(x.material){const mats=Array.isArray(x.material)?x.material:[x.material];mats.forEach(m=>m.dispose());}});scenes.delete(el);dirty=true;}
-function tick(now){raf=requestAnimationFrame(tick);if(!visible||now-last<1000/(small()?24:30))return;const dt=Math.min((now-last)/1000,.1);last=now;if(paused()&&!dirty)return;dirty=false;const canvas=sharedRenderer.domElement;if(canvas.clientWidth!==innerWidth||canvas.clientHeight!==innerHeight||canvas.width!==Math.round(innerWidth*sharedRenderer.getPixelRatio()))sharedRenderer.setSize(innerWidth,innerHeight,false);sharedRenderer.setScissorTest(false);sharedRenderer.clear();sharedRenderer.setScissorTest(true);scenes.forEach(o=>render(o,dt));}
-export function mountScenes(){observer?.disconnect();[...scenes.keys()].forEach(dispose);observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)create(e.target);else dispose(e.target);});},{rootMargin:'70px'});document.querySelectorAll('[data-scene]').forEach(el=>{observer.observe(el);el.addEventListener('pointermove',e=>{const s=scenes.get(el);if(!s||small())return;const b=el.getBoundingClientRect();s.pointer=[(e.clientX-b.left)/b.width-.5,(e.clientY-b.top)/b.height-.5];},{passive:true});el.addEventListener('pointerleave',()=>{const s=scenes.get(el);if(s)s.pointer=[0,0];});});if(!raf)raf=requestAnimationFrame(tick);}
-addEventListener('resize',()=>{dirty=true;sharedRenderer.setSize(innerWidth,innerHeight,false);},{passive:true});
-addEventListener('scroll',()=>dirty=true,{passive:true});
-addEventListener('motionchange',()=>dirty=true);
-reduce.addEventListener('change',()=>dirty=true);
-document.addEventListener('visibilitychange',()=>{visible=!document.hidden});
-mountScenes();
+let host=document.querySelector('.scene-host'),chamber=host.closest('.chamber');const chambers=[...document.querySelectorAll('.chamber')],reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const low=innerWidth<760||(navigator.hardwareConcurrency||8)<=4||navigator.connection?.saveData;
+const renderer=new T.WebGLRenderer({alpha:true,antialias:!low,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio,low?1:1.6));renderer.setClearColor(0,0);renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;renderer.shadowMap.enabled=!low;renderer.shadowMap.type=T.PCFSoftShadowMap;host.append(renderer.domElement);
+const scene=new T.Scene(),camera=new T.PerspectiveCamera(36,1,.1,60);camera.position.set(.2,1,9);scene.fog=new T.FogExp2(0x0a182b,.028);
+// Large photographic softboxes become the reflected environment for every metal surface.
+const studio=new T.Scene();studio.background=new T.Color(0x13243b);const studioBox=new T.Mesh(new T.BoxGeometry(20,20,20),new T.MeshBasicMaterial({color:0x182d43,side:T.BackSide}));studio.add(studioBox);
+for(const [x,y,z,w,h,c] of [[-5,4,2,3,7,0xc5e8ff],[4,2,-3,2,8,0x286da2],[0,7,1,8,3,0xe3f5ff],[0,-3,4,6,1,0x457fa7]]){const light=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color:c,side:T.DoubleSide}));light.position.set(x,y,z);light.lookAt(0,0,0);studio.add(light);}const pmrem=new T.PMREMGenerator(renderer),env=pmrem.fromScene(studio,0,.1,40);scene.environment=env.texture;pmrem.dispose();studio.traverse(o=>{o.geometry?.dispose();o.material?.dispose()});
+scene.add(new T.HemisphereLight(0xc4e6ff,0x051226,2));const key=new T.DirectionalLight(0xcdeaff,4);key.position.set(-3,5,4);key.castShadow=!low;key.shadow.mapSize.set(512,512);key.shadow.camera.left=-4;key.shadow.camera.right=4;key.shadow.camera.top=4;key.shadow.camera.bottom=-4;key.shadow.bias=-.002;scene.add(key);const rim=new T.PointLight(0x40adff,25,14,2);rim.position.set(3,1,-2);scene.add(rim);const fill=new T.PointLight(0xb2e8ff,9,12);fill.position.set(-3,-1,3);scene.add(fill);
+const metal=new T.MeshStandardMaterial({color:0x7894ac,metalness:.96,roughness:.22,envMapIntensity:1.4}),darkMetal=new T.MeshStandardMaterial({color:0x112334,metalness:.92,roughness:.28}),edge=new T.MeshStandardMaterial({color:0x8bd5ff,metalness:.65,roughness:.18,emissive:0x2780b8,emissiveIntensity:.38});
+const world=new T.Group();world.position.x=.3;scene.add(world);const object=new T.Group();world.add(object);object.position.y=.35;object.rotation.set(.035,-.17,-.018);
+const glass=new T.MeshPhysicalMaterial({color:0x1b3b55,metalness:.05,roughness:.11,transmission:low?0:.65,thickness:.4,ior:1.48,transparent:true,opacity:.78,clearcoat:1,clearcoatRoughness:.1,envMapIntensity:1.8});
+const slab=new T.Mesh(new T.BoxGeometry(2.42,2.72,.13),glass);object.add(slab);slab.castShadow=true;
+function box(w,h,d,x,y,z,mat=metal,parent=object){const m=new T.Mesh(new T.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m;}
+box(2.48,.045,.17,0,1.38,0);box(2.48,.045,.17,0,-1.38,0);box(.045,2.72,.17,-1.24,0,0);box(.045,2.72,.17,1.24,0,0);box(2.2,.009,.018,0,1.35,.1,edge);box(.009,2.25,.018,-1.21,0,.1,edge);
+const tex=await new T.TextureLoader().loadAsync('/assets/sky247.png');tex.colorSpace=T.SRGBColorSpace;tex.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());const ratio=tex.image.width/tex.image.height;const logo=new T.Mesh(new T.PlaneGeometry(1.95*ratio,1.95),new T.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,toneMapped:false}));logo.position.z=.086;object.add(logo);
+const orbit=new T.Group();world.add(orbit);const ring=new T.Mesh(new T.TorusGeometry(2.25,.065,low?8:14,low?80:144),metal);ring.rotation.set(.15,-.42,.2);ring.position.set(.05,.15,-.52);orbit.add(ring);const arc=new T.Mesh(new T.TorusGeometry(2.26,.014,8,80,Math.PI*1.3),edge);arc.rotation.copy(ring.rotation);arc.position.copy(ring.position);arc.position.z+=.01;orbit.add(arc);
+const lowerRing=new T.Mesh(new T.TorusGeometry(1.85,.018,8,96),edge);lowerRing.rotation.x=Math.PI/2;lowerRing.position.y=-1.56;world.add(lowerRing);
+const pedestal=new T.Mesh(new T.CylinderGeometry(1.95,2.08,.19,low?48:96),darkMetal);pedestal.position.y=-1.77;pedestal.receiveShadow=true;world.add(pedestal);const felt=new T.MeshStandardMaterial({color:0x061325,metalness:.08,roughness:.92});const top=new T.Mesh(new T.CylinderGeometry(1.96,1.96,.023,64),felt);top.position.y=-1.665;top.receiveShadow=true;world.add(top);
+const gold=new T.MeshStandardMaterial({color:0x9c8654,metalness:.94,roughness:.28});const tableTrim=new T.Mesh(new T.TorusGeometry(1.95,.025,8,96),metal);tableTrim.rotation.x=Math.PI/2;tableTrim.position.y=-1.65;world.add(tableTrim);
+// One roulette-inspired sculptural ring, with restrained metallic divisions.
+for(let i=0;i<(low?12:24);i++){const theta=i*Math.PI*2/(low?12:24),tick=new T.Mesh(new T.BoxGeometry(.022,.15,.038),i%6===0?gold:darkMetal);tick.position.set(Math.sin(theta)*2.19,Math.cos(theta)*2.19,0);tick.rotation.z=-theta;ring.add(tick);}
+const casinoObjects=[];
+function makeChip(x,y,z,scale){const chip=new T.Group(),base=new T.Mesh(new T.CylinderGeometry(.31,.31,.095,32),darkMetal);base.castShadow=true;chip.add(base);for(const side of [-1,1]){const bevel=new T.Mesh(new T.TorusGeometry(.292,.018,6,40),metal);bevel.rotation.x=Math.PI/2;bevel.position.y=.045*side;chip.add(bevel);const face=new T.Mesh(new T.CylinderGeometry(.225,.225,.005,32),felt);face.position.y=.052*side;chip.add(face);}for(let i=0;i<8;i++){const angle=i*Math.PI/4,notch=new T.Mesh(new T.BoxGeometry(.09,.099,.04),i===0?gold:metal);notch.position.set(Math.sin(angle)*.278,0,Math.cos(angle)*.278);notch.rotation.y=angle;chip.add(notch);}chip.position.set(x,y,z);chip.scale.setScalar(scale);chip.rotation.set(.7,.25,.3);world.add(chip);casinoObjects.push(chip);}
+makeChip(-2.1,-.65,.4,1);if(!low){makeChip(2.35,.85,-.8,.75);makeChip(1.6,-1.4,.45,.55);}
+function makeCard(x,y,z){const shape=new T.Shape(),w=.52,h=.8,r=.045;shape.moveTo(-w/2+r,-h/2);shape.lineTo(w/2-r,-h/2);shape.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);shape.lineTo(w/2,h/2-r);shape.quadraticCurveTo(w/2,h/2,w/2-r,h/2);shape.lineTo(-w/2+r,h/2);shape.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);shape.lineTo(-w/2,-h/2+r);shape.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);const card=new T.Group(),body=new T.Mesh(new T.ExtrudeGeometry(shape,{depth:.012,bevelEnabled:true,bevelSize:.006,bevelThickness:.006,bevelSegments:2,steps:1}),metal);card.add(body);const face=new T.Mesh(new T.PlaneGeometry(.49,.76),darkMetal);face.position.z=.024;card.add(face);const diamond=new T.Mesh(new T.PlaneGeometry(.09,.09),gold);diamond.rotation.z=Math.PI/4;diamond.position.set(0,0,.028);card.add(diamond);card.position.set(x,y,z);card.rotation.set(.15,-.4,.22);world.add(card);casinoObjects.push(card);}
+makeCard(2.5,-.7,-.4);if(!low)makeCard(-2.4,1.3,-1.2);
+// A softly faded logo reflection sits on the floor, with contact shadows beneath the plinth.
+const reflection=new T.Mesh(new T.PlaneGeometry(2.1,1.1),new T.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{map:{value:tex}},vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'uniform sampler2D map;varying vec2 vUv;void main(){vec4 c=texture2D(map,vec2(vUv.x,1.-vUv.y));gl_FragColor=vec4(c.rgb*.55,c.a*.13*smoothstep(0.,1.,vUv.y));}'}));reflection.rotation.x=-Math.PI/2;reflection.position.set(.3,-1.875,1.7);scene.add(reflection);
+const shadowCanvas=document.createElement('canvas');shadowCanvas.width=128;shadowCanvas.height=128;const ctx=shadowCanvas.getContext('2d'),g=ctx.createRadialGradient(64,64,4,64,64,64);g.addColorStop(0,'rgba(0,0,0,.65)');g.addColorStop(.5,'rgba(0,0,0,.3)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(0,0,128,128);const shadow=new T.Mesh(new T.PlaneGeometry(6,5),new T.MeshBasicMaterial({map:new T.CanvasTexture(shadowCanvas),transparent:true,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=-1.9;scene.add(shadow);
+const count=low?35:130,positions=new Float32Array(count*3),sizes=new Float32Array(count);let seed=247;const rand=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};for(let i=0;i<count;i++){positions[i*3]=(rand()-.5)*11;positions[i*3+1]=(rand()-.5)*6;positions[i*3+2]=(rand()-.5)*7;sizes[i]=1+rand()*2.5;}const pg=new T.BufferGeometry();pg.setAttribute('position',new T.BufferAttribute(positions,3));pg.setAttribute('size',new T.BufferAttribute(sizes,1));const particles=new T.Points(pg,new T.ShaderMaterial({transparent:true,depthWrite:false,blending:T.AdditiveBlending,uniforms:{time:{value:0},pixelRatio:{value:renderer.getPixelRatio()}},vertexShader:'attribute float size;uniform float time;uniform float pixelRatio;varying float opacity;void main(){vec3 p=position;p.y+=sin(time*.15+position.x)*.1;p.x+=sin(time*.08+position.z)*.08;vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;gl_PointSize=size*pixelRatio*(7./-mv.z);opacity=.12+size*.06;}',fragmentShader:'varying float opacity;void main(){float d=distance(gl_PointCoord,vec2(.5));gl_FragColor=vec4(.5,.78,1.,smoothstep(.5,.05,d)*opacity);}'}));scene.add(particles);
+const floaters=[];for(let i=0;i<(low?2:5);i++){const panel=new T.Mesh(new T.BoxGeometry(.12+i*.03,.45+i*.05,.025),i%2?metal:glass);panel.position.set(i%2?-2.4:2.5,(i-2)*.7,-.6-(i%3));panel.rotation.set(.3,i*.6,.4);scene.add(panel);floaters.push(panel);}
+let raf=0,last=0,elapsed=0,inView=true,lost=false,frames=0,slowFrames=0;const pointer=new T.Vector2(),smooth=new T.Vector2();const paused=()=>reduce.matches||document.body.classList.contains('motion-paused')||document.body.classList.contains('dialog-open');
+function size(){const b=host.getBoundingClientRect();if(!b.width||!b.height)return;renderer.setSize(b.width,b.height,false);camera.aspect=b.width/b.height;camera.fov=b.width<500?42:36;camera.updateProjectionMatrix();render();}
+function render(){if(lost)return;renderer.render(scene,camera);}
+function tick(now){raf=0;if(!inView||document.hidden||lost)return;const delta=last?Math.min((now-last)/1000,.05):.016;last=now;if(!paused()){elapsed+=delta;smooth.lerp(pointer,.035);object.rotation.y=-.17+Math.sin(elapsed*.17)*.1+smooth.x*.09;object.rotation.x=.035+smooth.y*.04;object.position.y=.35+Math.sin(elapsed*.4)*.055;orbit.rotation.z=Math.sin(elapsed*.13)*.055;camera.position.x=.2+smooth.x*.15;camera.position.y=1+smooth.y*.08-Math.min(scrollY/innerHeight,1)*.08;camera.lookAt(.3,-.03,0);particles.material.uniforms.time.value=elapsed;particles.rotation.y=elapsed*.004;floaters.forEach((p,i)=>{p.rotation.y+=delta*.025;});casinoObjects.forEach((p,i)=>{p.rotation.y+=delta*(i%2?.04:-.03);});}render();if(!low&&frames++<120&&delta>.04)slowFrames++;if(frames===120&&slowFrames>45){renderer.setPixelRatio(1);renderer.shadowMap.enabled=false;pg.setDrawRange(0,45);document.body.classList.add('low-power');size();}if(!paused())raf=requestAnimationFrame(tick);}
+function wake(){if(raf)cancelAnimationFrame(raf);raf=0;last=0;if(inView&&!document.hidden&&!lost)raf=requestAnimationFrame(tick);}
+const visibleChambers=new Set(),resizeObserver=new ResizeObserver(size),sceneObserver=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)visibleChambers.add(e.target);else visibleChambers.delete(e.target)});const target=[...visibleChambers][0];inView=Boolean(target);if(target&&target!==chamber){chamber.classList.remove('scene-active');chamber=target;host=chamber.querySelector('.scene-host');host.append(renderer.domElement);chamber.classList.add('scene-active');size();}wake();},{rootMargin:'80px'});chambers.forEach(el=>{el.addEventListener('pointermove',e=>{if(paused()||e.pointerType!=='mouse')return;const b=el.getBoundingClientRect();pointer.set((e.clientX-b.left)/b.width-.5,(e.clientY-b.top)/b.height-.5);},{passive:true});el.addEventListener('pointerleave',()=>pointer.set(0,0));resizeObserver.observe(el.querySelector('.scene-host'));sceneObserver.observe(el);});document.addEventListener('visibilitychange',wake);addEventListener('motionchange',wake);renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();lost=true;if(raf)cancelAnimationFrame(raf);renderer.domElement.style.display='none';chambers.forEach(el=>el.classList.remove('scene-active'));document.body.classList.remove('webgl-ready');document.body.classList.add('static-rendering');});
+size();camera.lookAt(.3,-.03,0);render();chamber.classList.add('scene-active');document.body.classList.add('webgl-ready');if(low)document.body.classList.add('low-power');wake();
