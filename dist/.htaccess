@@ -19,3 +19,11 @@ ErrorDocument 404 /404.html
   ExpiresByType text/css "access plus 1 hour"
   ExpiresByType text/javascript "access plus 1 hour"
 </IfModule>
+
+# Always revalidate the page itself, so a new upload shows immediately.
+# CSS and JS are referenced with ?v= version strings that change on every build.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|json)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>

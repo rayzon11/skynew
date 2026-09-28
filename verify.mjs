@@ -51,14 +51,17 @@ for (const a of anchors.filter(a => /href="#/.test(a))) assert(html.includes(`id
 // Assets: relative paths only (the site must work from any folder, a subfolder, or opened from disk), and every referenced file exists.
 const local = v => !/^(https?:|#|data:|mailto:|tel:)/.test(v);
 assert(!/(?:src|href|srcset)="\/(?!\/)/.test(html), 'index.html must use relative paths, not root-absolute /paths');
-for (const match of html.matchAll(/(?:src|href)="([^"]+)"/g)) if (local(match[1])) assert(fs.existsSync(`dist/${match[1]}`), `Missing asset ${match[1]}`);
+for (const match of html.matchAll(/(?:src|href)="([^"]+)"/g)) if (local(match[1])) assert(fs.existsSync(`dist/${match[1].split('?')[0]}`), `Missing asset ${match[1]}`);
 for (const match of html.matchAll(/srcset="([^"]+)"/g)) for (const part of match[1].split(',')) { const file = part.trim().split(/\s+/)[0]; assert(fs.existsSync(`dist/${file}`), `Missing srcset asset ${file}`); }
 for (const p of products) assert(fs.existsSync(`dist/assets/${p.logo}`), `Missing showroom logo ${p.logo}`);
 const css = fs.readFileSync('dist/casino.css', 'utf8');
 for (const match of css.matchAll(/url\(['"]?([^)'"\s]+)['"]?\)/g)) if (local(match[1])) assert(!match[1].startsWith('/') && fs.existsSync(`dist/${match[1]}`), `Missing or root-absolute CSS asset ${match[1]}`);
-assert(/<script defer src="app\.js"><\/script>/.test(html), 'app.js must load as a classic deferred script so it also runs from a local folder');
+assert(/<script defer src="app\.js\?v=[0-9a-f]{10}"><\/script>/.test(html), 'app.js must load as a versioned classic deferred script (runs from a local folder, never served stale)');
+assert(/href="casino\.css\?v=[0-9a-f]{10}"/.test(html) && /href="fonts\.css\?v=[0-9a-f]{10}"/.test(html), 'Stylesheets must carry version query strings');
+assert(!/\?\.|\?\?/.test(fs.readFileSync('dist/app.js', 'utf8').replace(/'[^']*'/g, '')), 'app.js must avoid optional chaining / nullish operators for older phone browsers');
 assert((fs.readFileSync('dist/fonts.css', 'utf8').match(/url\(data:font\/woff2;base64,/g) || []).length === 2, 'fonts.css must embed both fonts');
 assert(/prefers-reduced-motion:\s*reduce/.test(fs.readFileSync('dist/casino.css', 'utf8')));
 assert(fs.readFileSync('dist/app.js', 'utf8').includes('showModal()'));
+assert(/Cache-Control "no-cache/.test(fs.readFileSync('dist/.htaccess', 'utf8')), '.htaccess must stop HTML being cached');
 assert(fs.existsSync('dist/.htaccess'), '.htaccess must be deployed');
 console.log(`PASS: six approved platforms in order, SKY247 heading, four rates and the ${features.length} features per card, bonus buttons only on ${approvedBonus.length} approved platforms, ${contactLinks.length} support links on ${contact}, ${external.length} external links HTTPS + new tab, all assets present with relative paths.`);
