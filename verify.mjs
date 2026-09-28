@@ -20,7 +20,7 @@ cards.forEach(([, id, body], i) => {
   const p = products[i];
   assert.equal(id, p.id, 'Card order must follow the catalogue');
   assert(fs.existsSync(`dist/assets/${p.logo}`));
-  assert(body.includes(`src="/assets/${p.logo}"`), `${p.name} logo missing`);
+  assert(body.includes(`src="assets/${p.logo}"`), `${p.name} logo missing`);
   assert(body.includes(`class="destination" href="${p.url}"`), `${p.name} destination missing`);
   assert(body.includes(`data-open="${p.id}"`));
   for (const rate of ['Rs 300', 'Rs 1<', 'Rs 100</dd><\/div><div><dt>Fancy min</dt><dd>Rs 100']) assert(body.includes(rate), `${p.name} rate ${rate} missing`);
@@ -45,14 +45,17 @@ const contactLinks = external.filter(a => hrefOf(a).includes('awl247wa'));
 assert(contactLinks.every(a => hrefOf(a) === contact), 'All support links must use the exact contact route');
 for (const a of anchors.filter(a => /href="#/.test(a))) assert(html.includes(`id="${hrefOf(a).slice(1)}"`), `Broken in-page link ${hrefOf(a)}`);
 
-// Assets referenced by HTML (src, href, srcset) and CSS exist.
-for (const match of html.matchAll(/(?:src|href)="(\/[^"#]+)"/g)) assert(fs.existsSync(`dist${match[1]}`), `Missing asset ${match[1]}`);
-for (const match of html.matchAll(/srcset="([^"]+)"/g)) for (const part of match[1].split(',')) { const file = part.trim().split(/\s+/)[0]; assert(fs.existsSync(`dist${file}`), `Missing srcset asset ${file}`); }
-for (const file of ['dist/casino.css', 'dist/styles.css']) {
-  const css = fs.readFileSync(file, 'utf8');
-  for (const match of css.matchAll(/url\(['"]?(\/[^)'"\s]+)['"]?\)/g)) assert(fs.existsSync(`dist${match[1]}`), `Missing CSS asset ${match[1]} in ${file}`);
-}
+// Assets: relative paths only (the site must work from any folder, a subfolder, or opened from disk), and every referenced file exists.
+const local = v => !/^(https?:|#|data:|mailto:|tel:)/.test(v);
+assert(!/(?:src|href|srcset)="\/(?!\/)/.test(html), 'index.html must use relative paths, not root-absolute /paths');
+for (const match of html.matchAll(/(?:src|href)="([^"]+)"/g)) if (local(match[1])) assert(fs.existsSync(`dist/${match[1]}`), `Missing asset ${match[1]}`);
+for (const match of html.matchAll(/srcset="([^"]+)"/g)) for (const part of match[1].split(',')) { const file = part.trim().split(/\s+/)[0]; assert(fs.existsSync(`dist/${file}`), `Missing srcset asset ${file}`); }
+for (const p of products) assert(fs.existsSync(`dist/assets/${p.logo}`), `Missing showroom logo ${p.logo}`);
+const css = fs.readFileSync('dist/casino.css', 'utf8');
+for (const match of css.matchAll(/url\(['"]?([^)'"\s]+)['"]?\)/g)) if (local(match[1])) assert(!match[1].startsWith('/') && fs.existsSync(`dist/${match[1]}`), `Missing or root-absolute CSS asset ${match[1]}`);
+assert(/<script defer src="app\.js"><\/script>/.test(html), 'app.js must load as a classic deferred script so it also runs from a local folder');
+assert((fs.readFileSync('dist/fonts.css', 'utf8').match(/url\(data:font\/woff2;base64,/g) || []).length === 2, 'fonts.css must embed both fonts');
 assert(/prefers-reduced-motion:\s*reduce/.test(fs.readFileSync('dist/casino.css', 'utf8')));
 assert(fs.readFileSync('dist/app.js', 'utf8').includes('showModal()'));
 assert(fs.existsSync('dist/.htaccess'), '.htaccess must be deployed');
-console.log(`PASS: six approved platforms in order, SKY247 heading, four rates per card, bonus buttons only on ${approvedBonus.length} approved platforms, ${contactLinks.length} support links on ${contact}, ${external.length} external links HTTPS + new tab, all assets present.`);
+console.log(`PASS: six approved platforms in order, SKY247 heading, four rates per card, bonus buttons only on ${approvedBonus.length} approved platforms, ${contactLinks.length} support links on ${contact}, ${external.length} external links HTTPS + new tab, all assets present with relative paths.`);

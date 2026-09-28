@@ -1,4 +1,6 @@
 // SKY247 3D casino site: motion control, navigation, 3D showroom dialog and the arena ring.
+// Loaded as a classic deferred script (not a module) so it also runs when index.html is opened from a local folder.
+{
 const $ = (selector, scope = document) => scope.querySelector(selector);
 const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
 
@@ -74,7 +76,7 @@ function render(index) {
   $('#sr-name', dialog).textContent = p.name;
   $('.sr-tag', dialog).textContent = p.tagline;
   const logo = $('.sr-logo', dialog);
-  logo.src = `/assets/${p.logo}`;
+  logo.src = `assets/${p.logo}`;
   logo.alt = `${p.name} logo`;
   $('.sr-bonus', dialog).hidden = !bonus;
   $('.sr-access', dialog).hidden = bonus;
@@ -165,3 +167,4 @@ arenaTabs.forEach((tab, i) => tab.addEventListener('click', () => {
 
 spin(0);
 syncMotion();
+}
