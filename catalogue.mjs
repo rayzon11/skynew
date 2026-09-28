@@ -106,3 +106,6 @@ export const products = [
     ]
   }
 ];
+
+// Shown on every platform card and in the showroom (user-provided).
+export const features = ['ID in 5 min', 'Instant bet', 'Instant withdrawal'];

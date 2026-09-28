@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import {readFileSync} from 'node:fs';
-import {products} from './catalogue.mjs';
+import {products, features} from './catalogue.mjs';
 
 const root = new URL('./dist/', import.meta.url);
 const contact = 'https://awl247wa.com/casino/sky247';
@@ -23,6 +23,12 @@ const logoImg = (p, attrs = '') => {
 };
 
 const specs = cls => `<dl class="specs${cls ? ` ${cls}` : ''}"><div><dt>Min ID</dt><dd>Rs 300</dd></div><div><dt>1 point</dt><dd>Rs 1</dd></div><div><dt>Min bet</dt><dd>Rs 100</dd></div><div><dt>Fancy min</dt><dd>Rs 100</dd></div></dl>`;
+const featureIcons = {
+  'ID in 5 min': '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  'Instant bet': '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  'Instant withdrawal': '<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M16 12.5h2"/><path d="M2 10h20"/>',
+};
+const featureList = cls => `<ul class="features${cls ? ` ${cls}` : ''}">${features.map(f => `<li><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${featureIcons[f] || ''}</svg>${esc(f)}</li>`).join('')}</ul>`;
 const cube = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12"/><path d="M21 7l-9 5-9-5"/></svg>';
 const chevron = dir => `<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${dir === 'left' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6'}"/></svg>`;
 const die = '<span class="die"><i class="f1"></i><i class="f6"></i><i class="f2"></i><i class="f5"></i><i class="f3"></i><i class="f4"></i></span>';
@@ -34,10 +40,11 @@ function card(p, i) {
   const [left, right] = chipPairs[i % chipPairs.length];
   return `<article class="product-card ${bonus ? 'bonus-product' : 'standard-product'}" data-product="${p.id}">
 <div class="card-top"><span class="card-num"><b>${p.number}</b>/ 0${products.length}</span>${bonus ? '<span class="badge badge-bonus">BONUS SITE</span>' : '<span class="badge">DIRECT ACCESS</span>'}</div>
-<div class="stage" aria-hidden="true"><span class="minifloor"></span><span class="mt"><span class="mt-a"></span><span class="mt-b"></span><span class="mt-c"><span class="felt mt-felt"></span></span></span><span class="chip ${left} low c-left"></span><span class="chip ${right} low c-right"></span><span class="lift"><span class="${floats[i % 3]} slab"><span class="se e1"></span><span class="se e2"></span><span class="se e3"></span><span class="sf">${logoImg(p, 'alt="" loading="lazy"')}<span class="sheen"></span></span></span></span></div>
+<button class="stage" type="button" data-open="${p.id}" aria-haspopup="dialog" aria-label="Open the 3D showroom for ${esc(p.name)}"><span class="minifloor"></span><span class="mt"><span class="mt-a"></span><span class="mt-b"></span><span class="mt-c"><span class="felt mt-felt"></span></span></span><span class="chip ${left} low c-left"></span><span class="chip ${right} low c-right"></span><span class="lift"><span class="${floats[i % 3]} slab"><span class="se e1"></span><span class="se e2"></span><span class="se e3"></span><span class="sf">${logoImg(p, 'alt="" loading="lazy"')}<span class="sheen"></span></span></span></span></button>
 <h2 class="card-name">${esc(p.name)}</h2>
 <div class="card-sub"><span>${esc(p.category)}</span><a class="destination" href="${p.url}" ${ext} aria-label="Visit ${esc(p.name)} website, ${host(p.url)} (opens a new tab)">${host(p.url)} ${arrow}</a></div>
 ${specs()}
+${featureList()}
 <div class="offer">${bonus
     ? `<p class="offer-label">BONUS &amp; REWARDS</p><ul class="benefits">${p.benefits.map(b => `<li>${esc(b)}</li>`).join('')}</ul>`
     : '<p class="offer-label muted">PRODUCT ACCESS</p><p class="access-note">Get your ID or visit the platform to explore.</p>'}</div>
@@ -74,10 +81,10 @@ const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta n
 <header class="site-header"><div class="wrap header-inner">
 <a class="brand" href="#products" aria-label="SKY247 home">${logoImg(products[0], 'alt=""')}<span class="wordmark">SKY<b>247</b></span></a>
 <nav id="navigation" aria-label="Main navigation"><a href="#products">Platforms <span>06</span></a><a href="#stakes">Stakes</a><a href="#bonus">Bonuses</a><a href="#arenas">Arenas</a><a href="#lounge">Lounge</a></nav>
-<div class="header-actions"><button class="motion-toggle" type="button" aria-pressed="false" aria-label="Pause motion"><span class="motion-icon" aria-hidden="true">Ⅱ</span><span class="motion-label">Motion on</span></button><a class="btn btn-gold btn-sm" href="${contact}" ${ext} aria-label="Get ID (opens WhatsApp support in a new tab)">Get ID ${arrow}</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" aria-label="Open menu"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div>
+<div class="header-actions"><a class="btn btn-gold btn-sm" href="${contact}" ${ext} aria-label="Get ID (opens WhatsApp support in a new tab)">Get ID ${arrow}</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" aria-label="Open menu"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div>
 </div></header>
 <main id="main"><section class="collection wrap" id="products">
-<div class="collection-head"><div class="head-left"><h1 class="brand-3d">SKY<span>247</span></h1><span class="head-rule" aria-hidden="true"></span><p class="eyebrow">♠ Six platforms · One table</p></div><div class="head-right"><p>Open any card for its 3D showroom.</p><p class="legend"><span class="badge badge-bonus">BONUS SITE</span> Bonus programmes</p></div></div>
+<div class="collection-head"><div class="head-left"><h1 class="brand-3d">SKY<span>247</span></h1><span class="head-rule" aria-hidden="true"></span><p class="eyebrow">♠ Six platforms · One table</p></div><div class="head-right"><p>Tap any platform to open its 3D showroom.</p><p class="legend"><span class="badge badge-bonus">BONUS SITE</span> Bonus programmes</p></div></div>
 <div class="product-grid">${products.map(card).join('\n')}</div>
 <div class="baseline"><span>SKY247 / PLATFORMS 01 — 0${products.length}</span><span>ORIGINAL IDENTITIES · DIRECT ACCESS</span></div>
 </section>
@@ -109,7 +116,7 @@ const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta n
 <span class="sr-die die-a"><span class="float2 die-float">${die}</span></span><span class="sr-die die-b"><span class="float3 die-float">${die.replace('class="die"', 'class="die slow"')}</span></span>
 <span class="sr-chip chip-a"><span class="chip cy"></span></span><span class="sr-chip chip-b"><span class="chip ck low"></span></span><span class="sr-chip chip-c"><span class="chip cw"></span></span>
 </div></div><p class="sr-hint">Move your cursor to tilt the table ↻</p></div>
-<div class="sr-info"><div class="sr-titles"><p class="eyebrow sr-cat"></p><h2 id="sr-name"></h2><p class="sr-tag"></p></div>${specs('specs-lg')}
+<div class="sr-info"><div class="sr-titles"><p class="eyebrow sr-cat"></p><h2 id="sr-name"></h2><p class="sr-tag"></p></div>${specs('specs-lg')}${featureList('features-lg')}
 <div class="sr-bonus" hidden><p class="offer-label">BONUS &amp; REWARDS</p><ul class="sr-benefits">${bonusBenefits.map(b => `<li><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${benefitIcons[b] || ''}</svg>${esc(b)}</li>`).join('')}</ul></div>
 <div class="sr-access" hidden><p class="offer-label muted">PRODUCT ACCESS</p><p class="sr-access-note">Get your ID or visit the platform to explore. Bonus programmes are offered on ${products.filter(isBonus).map(p => p.name).join(', ').replace(/, ([^,]*)$/, ' and $1')}.</p></div>
 <div class="sr-cta"><a class="btn btn-gold sr-primary" href="${contact}" ${ext}><span class="sr-primary-label">Claim bonus</span> ${arrow}</a><a class="btn btn-ghost sr-visit" href="${products[0].url}" ${ext}>Visit website ${arrow}</a></div>

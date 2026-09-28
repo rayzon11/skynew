@@ -1,4 +1,4 @@
-// SKY247 3D casino site: motion control, navigation, 3D showroom dialog and the arena ring.
+// SKY247 3D casino site: navigation, 3D showroom dialog and the arena ring. Motion is always on (the OS reduced-motion setting still applies).
 // Loaded as a classic deferred script (not a module) so it also runs when index.html is opened from a local folder.
 {
 const $ = (selector, scope = document) => scope.querySelector(selector);
@@ -6,25 +6,6 @@ const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)]
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const products = JSON.parse($('#catalogue-data').textContent);
-let userPaused = false;
-const paused = () => reduce.matches || userPaused;
-
-// Motion toggle (also respects the reduced-motion preference)
-const motion = $('.motion-toggle');
-function syncMotion() {
-  document.body.classList.toggle('motion-paused', paused());
-  motion.setAttribute('aria-pressed', String(paused()));
-  motion.setAttribute('aria-label', reduce.matches ? 'Reduced motion enabled' : userPaused ? 'Resume motion' : 'Pause motion');
-  $('.motion-label', motion).textContent = paused() ? 'Motion off' : 'Motion on';
-  $('.motion-icon', motion).textContent = paused() ? '▷' : 'Ⅱ';
-  if (paused()) resetTilt();
-}
-motion.addEventListener('click', () => {
-  if (reduce.matches) return;
-  userPaused = !userPaused;
-  syncMotion();
-});
-reduce.addEventListener('change', syncMotion);
 
 // Responsive navigation
 const nav = $('#navigation');
@@ -103,11 +84,18 @@ function openShowroom(id, trigger) {
   setMenu(false);
   render(index);
   document.documentElement.classList.add('dialog-open');
-  dialog.showModal();
+  if (typeof dialog.showModal === 'function') dialog.showModal();
+  else dialog.setAttribute('open', '');
   fitStage();
 }
 $$('[data-open]').forEach(button => button.addEventListener('click', () => openShowroom(button.dataset.open, button)));
-$('.sr-close', dialog).addEventListener('click', () => dialog.close());
+// Clicking anywhere on a platform card (not its links or buttons) opens its showroom too.
+$$('.product-card').forEach(card => card.addEventListener('click', event => {
+  if (event.target.closest('a, button')) return;
+  openShowroom(card.dataset.product, $('[data-open]', card));
+}));
+const closeShowroom = () => (typeof dialog.close === 'function' ? dialog.close() : (dialog.removeAttribute('open'), dialog.dispatchEvent(new Event('close'))));
+$('.sr-close', dialog).addEventListener('click', closeShowroom);
 $('.sr-prev', dialog).addEventListener('click', () => render(current - 1));
 $('.sr-next', dialog).addEventListener('click', () => render(current + 1));
 railButtons.forEach((button, i) => button.addEventListener('click', () => render(i)));
@@ -118,7 +106,7 @@ dialog.addEventListener('keydown', event => {
 dialog.addEventListener('click', event => {
   if (event.target !== dialog) return;
   const box = dialog.getBoundingClientRect();
-  if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dialog.close();
+  if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) closeShowroom();
 });
 dialog.addEventListener('close', () => {
   document.documentElement.classList.remove('dialog-open');
@@ -132,7 +120,7 @@ function resetTilt() {
   scene.style.removeProperty('--ry');
 }
 stage.addEventListener('pointermove', event => {
-  if (paused() || event.pointerType !== 'mouse') return;
+  if (reduce.matches || event.pointerType !== 'mouse') return;
   const box = stage.getBoundingClientRect();
   const x = (event.clientX - box.left) / box.width - 0.5;
   const y = (event.clientY - box.top) / box.height - 0.5;
@@ -166,5 +154,4 @@ arenaTabs.forEach((tab, i) => tab.addEventListener('click', () => {
 }));
 
 spin(0);
-syncMotion();
 }

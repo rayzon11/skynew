@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
-import {products} from './catalogue.mjs';
+import {products, features} from './catalogue.mjs';
 
 const contact = 'https://awl247wa.com/casino/sky247';
 const approvedBonus = ['skyexch247', 'reddy247', 'tigerexchange247'];
@@ -12,6 +12,7 @@ assert.equal((html.match(/class="product-card /g) || []).length, 6);
 assert.match(html, /<main id="main"><section class="collection wrap" id="products">/);
 assert(!/SSECH|SSEXCH|TENEXCH/i.test(html));
 assert(!/SKY247 <span>COLLECTION|>COLLECTION</.test(html), 'Heading must read SKY247 only');
+assert(!/motion-toggle/.test(html), 'The motion on/off button was removed at the user\'s request');
 
 // Each card: original logo, destination, four rates, bonus content only where approved.
 const cards = [...html.matchAll(/<article class="product-card [^"]*" data-product="([^"]+)">([\s\S]*?)<\/article>/g)];
@@ -24,6 +25,8 @@ cards.forEach(([, id, body], i) => {
   assert(body.includes(`class="destination" href="${p.url}"`), `${p.name} destination missing`);
   assert(body.includes(`data-open="${p.id}"`));
   for (const rate of ['Rs 300', 'Rs 1<', 'Rs 100</dd><\/div><div><dt>Fancy min</dt><dd>Rs 100']) assert(body.includes(rate), `${p.name} rate ${rate} missing`);
+  for (const f of features) assert(body.includes(`</svg>${f}</li>`), `${p.name} feature ${f} missing`);
+  assert(body.includes(`<button class="stage" type="button" data-open="${p.id}"`), `${p.name} logo stage must open the showroom`);
   const bonus = approvedBonus.includes(p.id);
   assert.equal(body.includes('Claim bonus'), bonus, `${p.name} Claim bonus visibility`);
   assert.equal(body.includes('BONUS &amp; REWARDS'), bonus, `${p.name} bonus benefits visibility`);
@@ -58,4 +61,4 @@ assert((fs.readFileSync('dist/fonts.css', 'utf8').match(/url\(data:font\/woff2;b
 assert(/prefers-reduced-motion:\s*reduce/.test(fs.readFileSync('dist/casino.css', 'utf8')));
 assert(fs.readFileSync('dist/app.js', 'utf8').includes('showModal()'));
 assert(fs.existsSync('dist/.htaccess'), '.htaccess must be deployed');
-console.log(`PASS: six approved platforms in order, SKY247 heading, four rates per card, bonus buttons only on ${approvedBonus.length} approved platforms, ${contactLinks.length} support links on ${contact}, ${external.length} external links HTTPS + new tab, all assets present with relative paths.`);
+console.log(`PASS: six approved platforms in order, SKY247 heading, four rates and the ${features.length} features per card, bonus buttons only on ${approvedBonus.length} approved platforms, ${contactLinks.length} support links on ${contact}, ${external.length} external links HTTPS + new tab, all assets present with relative paths.`);

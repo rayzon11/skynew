@@ -18,7 +18,7 @@ Important: `dist/casino.css`, `dist/app.js`, `dist/404.html`, `dist/.htaccess` a
 - `catalogue.mjs`: exact product list, original logos, links and benefits.
 - `build.mjs`: HTML generator and page structure.
 - `dist/casino.css`: the live stylesheet: 3D casino theme, responsive layout, CSS 3D tables/chips/dice, showroom dialog, reduced-motion rules. Self-hosted fonts (Unbounded, Manrope) in dist/assets/fonts.
-- `dist/app.js`: motion toggle, responsive menu, 3D showroom dialog (native showModal, Escape, focus return, prev/next, arrow keys, platform rail, mouse tilt) and the arena ring.
+- `dist/app.js`: responsive menu, 3D showroom dialog (opened from the whole card, the logo stage or the 3D Showroom button; native showModal, Escape, focus return, prev/next, arrow keys, platform rail, mouse tilt) and the arena ring.
 - `verify.mjs`: catalogue order, SKY247 heading, per-card rates and bonus rules, link rules (exact contact route, HTTPS, new tab + noopener, in-page anchors) and asset checks.
 - `artwork/`: generated source PNGs and exact prompts. Optimized WebP assets are in dist/assets.
 
@@ -29,12 +29,12 @@ Important: `dist/casino.css`, `dist/app.js`, `dist/404.html`, `dist/.htaccess` a
 3. The original separate SKY247 card was a duplicate and was removed. SKYEXCH247 is the first product. Do not add the duplicate back or make its card larger.
 4. Do not include SSECH, SSEXCH or TENEXCH.
 5. Preserve each original product logo, its aspect ratio and destination URL from catalogue.mjs.
-6. All six products show Rs 300 minimum ID, Rs 1 per point, Rs 100 minimum bet and Rs 100 fancy minimum.
+6. All six products show Rs 300 minimum ID, Rs 1 per point, Rs 100 minimum bet and Rs 100 fancy minimum, plus the shared features "ID in 5 min", "Instant bet" and "Instant withdrawal" (user-provided; `features` in catalogue.mjs).
 7. Only SKYEXCH247, REDDY247 and TIGEREXCHANGE247 show Auto Bonus, Weekly Loss Back, Refer & Earn and Deposit Commission, plus Claim bonus contact buttons.
 8. Existing contact route is https://awl247wa.com/casino/sky247. It redirects to WhatsApp. These are support-contact buttons, not automatic bonus submissions or approvals. Keep existing contact and destination links unless the user supplies replacements.
 9. The page includes the six platform cards (each with a 3D Showroom dialog), table stakes, four illustrated bonus-programme cards, a rotating 3D ring of four sports arenas, the casino-lounge contact card and footer.
 10. The user asked for a full casino theme with a 3D-level redesign. The whole site is dark (graphite black #06070A) with green felt tables, walnut rims, champagne rules, and SKY yellow (#FFC425) used for CTAs, numerals and badges only. Avoid flooding sections in yellow/gold.
-11. Keep the CSS 3D depth (floating logo slabs, felt tables, chips, dice, tilt) with restrained motion. Preserve keyboard navigation, native dialog Escape/focus return, reduced-motion behavior, touch support and the motion toggle.
+11. Keep the CSS 3D depth (floating logo slabs, felt tables, chips, dice, tilt). Motion is always on: the user asked to remove the motion on/off button. The OS reduced-motion accessibility setting is still honoured. Clicking anywhere on a platform card (or its logo stage) opens its 3D showroom. Preserve keyboard navigation, native dialog Escape/focus return and touch support.
 
 ## Current implementation notes
 
